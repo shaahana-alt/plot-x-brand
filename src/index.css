@@ -34,6 +34,7 @@ table { border-collapse: collapse; }
 .demi { font-weight: 600; }
 .med { font-weight: 500; }
 .nums { font-variant-numeric: tabular-nums; }
+.stage h2, .num, .nums { font-family: "Good Sans", sans-serif; }
 .muted { color: var(--muted); }
 .soft { color: var(--soft); }
 

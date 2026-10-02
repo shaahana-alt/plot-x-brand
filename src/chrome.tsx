@@ -29,7 +29,7 @@ export function TopBar({
         <span className="avatars" aria-hidden="true">
           <img src={asset("/media/avatar-a.png")} alt="" />
           <img src={asset("/media/avatar-b.png")} alt="" />
-          <span>+8</span>
+          <span className="num">+8</span>
         </span>
         <button className="solid" type="button">
           {action}

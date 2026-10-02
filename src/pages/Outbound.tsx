@@ -28,7 +28,7 @@ const leaders = [
 function Delta({ value, down = false }: { value: string; down?: boolean }) {
   return (
     <p className="ob-delta">
-      <span className={down ? "is-down" : "is-up"}>{down ? "↓" : "↑"} {value}</span>
+      <span className={down ? "num is-down" : "num is-up"}>{down ? "↓" : "↑"} {value}</span>
       <span> vs last week</span>
     </p>
   );
@@ -78,7 +78,7 @@ export function Outbound() {
             <div className="ob-glass">
               <div className="ob-glass-head">
                 <div className="ob-total">
-                  <span className="ob-num">200</span>
+                  <span className="num ob-num">200</span>
                   <span className="ob-total-label">Total comments</span>
                   <Delta value="63%" />
                 </div>
@@ -92,7 +92,7 @@ export function Outbound() {
                 {stats.map((stat) => (
                   <div key={stat.label}>
                     <p className="ob-stat-label">{stat.label}</p>
-                    <p className="ob-stat-value">
+                    <p className="num ob-stat-value">
                       {stat.value}
                       <span>{stat.mark}</span>
                     </p>
@@ -107,14 +107,14 @@ export function Outbound() {
                 <img src={asset("/figma/ob-thumb.png")} alt="" />
                 <div>
                   <p>We see you!! This energy is giving ✨ empowered ✨ — love it!</p>
-                  <p className="ob-metrics">♥ 28.7k · 594 · 6577 · $ 323 EMV</p>
+                  <p className="num ob-metrics">♥ 28.7k · 594 · 6577 · $ 323 EMV</p>
                 </div>
               </div>
               <p className="ob-kicker">Top community manager</p>
               <div className="ob-manager">
                 <img src={asset("/figma/robert.png")} alt="" />
                 <div>
-                  <p className="ob-name">Robert Wallis <span>9.8</span></p>
+                  <p className="ob-name">Robert Wallis <span className="num">9.8</span></p>
                   <p className="ob-metrics">56 comments · 10.2k max likes · 6577 avg engagement</p>
                 </div>
               </div>
@@ -126,7 +126,7 @@ export function Outbound() {
           <div className="ob-panel-head">
             <div>
               <h2>Total Replies</h2>
-              <p className="ob-big">240</p>
+              <p className="num ob-big">240</p>
               <p className="ob-sub">Total comments you've made on creators' posts.</p>
             </div>
             <div className="ob-toggles">
@@ -136,7 +136,7 @@ export function Outbound() {
             </div>
           </div>
           <div className="ob-chart">
-            <div className="ob-y">
+            <div className="num ob-y">
               {["200", "150", "100", "50", "0"].map((tick) => <span key={tick}>{tick}</span>)}
             </div>
             <div className="ob-plot">
@@ -151,11 +151,11 @@ export function Outbound() {
             </div>
             <aside className="ob-tip">
               <p className="ob-tip-date">Apr 8, 2025</p>
-              <p className="ob-tip-value"><b>240</b> replies</p>
-              <p><i>🖊️</i> <b>90</b> brand comments</p>
-              <p><i>♥️</i> <b>280k</b> likes</p>
-              <p><i>👁️</i> <b>800k</b> impressions</p>
-              <p><i>💲</i> <b>433</b> EMV</p>
+              <p className="ob-tip-value"><b className="num">240</b> replies</p>
+              <p><i>🖊️</i> <b className="num">90</b> brand comments</p>
+              <p><i>♥️</i> <b className="num">280k</b> likes</p>
+              <p><i>👁️</i> <b className="num">800k</b> impressions</p>
+              <p><i>💲</i> <b className="num">433</b> EMV</p>
             </aside>
           </div>
           <p className="ob-updated">Last updated yesterday at 12pm</p>
@@ -191,14 +191,14 @@ export function Outbound() {
               <tbody>
                 {comments.map((row, index) => (
                   <tr key={row.by}>
-                    <td>{index + 1}</td>
+                    <td className="num">{index + 1}</td>
                     <td>July 15, 2024</td>
                     <td><img className="ob-thumb" src={row.thumb} alt="" /></td>
                     <td className="ob-copy">{row.text}</td>
-                    <td>{row.likes}</td>
-                    <td>{row.replies}</td>
-                    <td>{row.impressions}</td>
-                    <td>{row.emv}</td>
+                    <td className="num">{row.likes}</td>
+                    <td className="num">{row.replies}</td>
+                    <td className="num">{row.impressions}</td>
+                    <td className="num">{row.emv}</td>
                     <td><Person name={row.by} tone={row.tone} ink={row.ink} /></td>
                   </tr>
                 ))}
@@ -234,14 +234,14 @@ export function Outbound() {
               <tbody>
                 {leaders.map((row) => (
                   <tr key={row.name}>
-                    <td>{row.rank}</td>
+                    <td className="num">{row.rank}</td>
                     <td><Person name={row.name} tone={row.tone} ink={row.ink} /></td>
-                    <td>{row.engagement}</td>
-                    <td>{row.average}</td>
-                    <td>{row.posts}</td>
-                    <td>{row.likes}</td>
+                    <td className="num">{row.engagement}</td>
+                    <td className="num">{row.average}</td>
+                    <td className="num">{row.posts}</td>
+                    <td className="num">{row.likes}</td>
                     <td className="ob-post-stack"><img src={asset("/figma/post-a.png")} alt="" /><img src={asset("/figma/post-b.png")} alt="" /><img src={asset("/figma/post-c.png")} alt="" /></td>
-                    <td><span className="ob-score" style={{ background: row.scoreBg, color: row.scoreInk }}>{row.score}</span></td>
+                    <td><span className="num ob-score" style={{ background: row.scoreBg, color: row.scoreInk }}>{row.score}</span></td>
                   </tr>
                 ))}
               </tbody>

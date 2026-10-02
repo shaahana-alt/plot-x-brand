@@ -114,7 +114,7 @@ export function Chat() {
               <p className="soft">January 1 – January 7, 2025</p>
             </div>
             <div className="bars" aria-hidden="true">
-              <div className="y-axis soft">
+              <div className="num y-axis soft">
                 {["900k", "600k", "300k", "100k", "0"].map((tick) => <span key={tick}>{tick}</span>)}
               </div>
               <div className="bar-row">

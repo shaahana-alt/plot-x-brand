@@ -36,9 +36,9 @@ export function Newsfeed() {
           <h1 className="display section-kicker">Daily Picks</h1>
           <div className="picks">
             <div className="streaks">
-              <div><p className="soft">Your Streak</p><p className="display streak-num">0 days 🔥</p></div>
-              <div><p className="soft">Longest streak</p><p className="display streak-num">0 days ⚡️</p></div>
-              <div><p className="soft">Total reviewed</p><p className="display streak-num">0 posts 📣</p></div>
+              <div><p className="soft">Your Streak</p><p className="display num streak-num">0 days 🔥</p></div>
+              <div><p className="soft">Longest streak</p><p className="display num streak-num">0 days ⚡️</p></div>
+              <div><p className="soft">Total reviewed</p><p className="display num streak-num">0 posts 📣</p></div>
             </div>
             <div className="filmstrip">
               {picks.map((index) => (
