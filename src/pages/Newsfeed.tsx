@@ -59,7 +59,7 @@ export function Newsfeed() {
 
         <section className="stories-section">
           <div className="stories-head">
-            <h2 className="display section-kicker">Feed Stories</h2>
+            <h1 className="display section-kicker">Feed Stories</h1>
             <div className="filters">
               <Chip>Last 14 days</Chip>
               <Chip active>Sort by Recency</Chip>
@@ -126,7 +126,7 @@ export function Newsfeed() {
         </section>
 
         <section className="watch">
-          <h2 className="display section-kicker">Your Watchlist</h2>
+          <h1 className="display section-kicker">Your Watchlist</h1>
           <div className="watch-row">
             <div>
               <p className="eyebrow">Saved posts</p>

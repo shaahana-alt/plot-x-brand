@@ -241,7 +241,7 @@ table { border-collapse: collapse; }
 .ask input { flex: 1; border: 0; background: transparent; outline: 0; font-size: 15px; }
 
 .section-kicker { font-size: 24px; color: var(--muted); letter-spacing: -0.04em; }
-.stage .section-kicker { font-family: "MF Ionica", Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1; color: var(--ink); }
+.stage .section-kicker { font-size: 32px; line-height: 1; color: var(--ink); }
 .feed { display: flex; flex-direction: column; gap: 28px; }
 .picks { margin-top: 14px; background: #f9f9f9; border-radius: 8px; padding: 20px; }
 .streaks { display: flex; gap: 28px; }
