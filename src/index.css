@@ -35,7 +35,7 @@ table { border-collapse: collapse; }
 .demi { font-weight: 600; }
 .med { font-weight: 500; }
 .nums { font-variant-numeric: tabular-nums; }
-.stage h2, .num, .nums { font-family: "Good Sans", sans-serif; }
+.stage h2, .stage h3, .stage h4, .stage h5, .stage h6, .story-title, .chart-title, .num, .nums { font-family: "Good Sans", sans-serif; }
 .muted { color: var(--muted); }
 .soft { color: var(--soft); }
 
