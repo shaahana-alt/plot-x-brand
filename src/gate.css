@@ -1,0 +1,85 @@
+.gate-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: "TT Commons Pro", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  background: #fff;
+}
+.gate {
+  width: min(360px, 100%);
+  display: flex;
+  flex-direction: column;
+}
+.gate-title {
+  margin: 0 0 40px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+.gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gate-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.gate-field {
+  position: relative;
+}
+.gate-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 44px 0 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+}
+.gate-field input:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.gate-field input[aria-invalid="true"] {
+  border-color: #8a1f11;
+}
+.gate-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+.gate-toggle svg {
+  display: block;
+}
+.gate-submit {
+  height: 44px;
+  border-radius: 100px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+.gate-submit:hover {
+  background: #3a140f;
+}
+.gate-submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+.gate-error {
+  min-height: 1.25em;
+  font-size: 14px;
+  color: #8a1f11;
+}
