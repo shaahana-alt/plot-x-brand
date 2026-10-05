@@ -1,22 +1,39 @@
+import type { CSSProperties } from "react";
 import { asset } from "../asset";
 import { Chip, TopBar } from "../chrome";
 
 const picks = Array.from({ length: 10 }, (_, index) => index);
 
+const caption = "A beauty creator names Victoria Beckham by Augustinus Bader The Foundation Drops as one of her top";
+
+function CreatorCard({ image, handle, tilt = 0, hero = false }: { image: string; handle: string; tilt?: number; hero?: boolean }) {
+  return (
+    <figure className={hero ? "creator-card is-hero" : "creator-card"} style={{ "--tilt": `${tilt}deg` } as CSSProperties}>
+      <img src={image} alt="" />
+      <figcaption>
+        <p className="creator-handle">{handle}</p>
+        <p className="creator-caption">{caption}</p>
+      </figcaption>
+    </figure>
+  );
+}
+
 const stories = [
   {
     title: "Bridal Lip Combos Built Around Portofino ’97",
     body: "Brides and makeup artists are pairing Victoria Beckham’s Portofino ’97 liner with glossy nudes, calling it the one combo that survives a full wedding day.",
-    image: asset("/media/story-b.png"),
-    wash: asset("/media/story-a.png"),
+    image: asset("/figma/bridal-post.png"),
+    wash: asset("/figma/bridal-bg.jpg"),
     handle: "@glowbymaya",
+    tilt: 1,
   },
   {
     title: "Anne Hathaway’s Red Carpet Looks Drive Brown Shadow Tutorials",
     body: "Beauty editors are breaking down Anne Hathaway’s monochrome brown eyes and soft updos, and creators are recreating them step by step with drugstore swaps.",
-    image: asset("/media/story-c.png"),
-    wash: asset("/figma/wash-b.png"),
+    image: asset("/figma/anne-post.jpg"),
+    wash: asset("/figma/anne-bg.jpg"),
     handle: "@allure",
+    tilt: -1,
   },
 ];
 
@@ -78,16 +95,14 @@ export function Newsfeed() {
                 </div>
                 <div className="story-foot"><button type="button">View details →</button></div>
               </div>
-              <div className="story-visual" style={{ backgroundImage: `url(${asset("/media/nyx.png")})` }}>
-                <img src={asset("/media/picks.png")} alt="Creator holding NYX Brow Glue" />
-                <span>@uhodom_edinym</span>
+              <div className="story-visual" style={{ backgroundImage: `url(${asset("/figma/nyx-bg.jpg")})` }}>
+                <CreatorCard image={asset("/figma/nyx-post.png")} handle="@uhodom_edinym" hero />
               </div>
             </article>
             {stories.map((story) => (
               <article key={story.title} className="story">
-                <div className="story-visual compact" style={{ backgroundImage: `url(${story.wash})` }}>
-                  <img src={story.image} alt="" />
-                  <span>{story.handle}</span>
+                <div className="story-visual" style={{ backgroundImage: `url(${story.wash})` }}>
+                  <CreatorCard image={story.image} handle={story.handle} tilt={story.tilt} />
                 </div>
                 <div className="story-copy">
                   <h3 className="display story-title small">{story.title}</h3>
@@ -97,9 +112,8 @@ export function Newsfeed() {
               </article>
             ))}
             <article className="story lulu">
-              <div className="story-visual compact" style={{ backgroundImage: `url(${asset("/figma/wash-c.png")})` }}>
-                <img src={asset("/media/story-d.png")} alt="" />
-                <span>@lululemon</span>
+              <div className="story-visual" style={{ backgroundImage: `url(${asset("/figma/lulu-bg.jpg")})` }}>
+                <CreatorCard image={asset("/figma/lulu-post.png")} handle="@lululemon" tilt={1} />
               </div>
               <div className="story-copy">
                 <h3 className="display story-title small">Lululemon’s Summer Series Turns Pilates Into a Mood</h3>

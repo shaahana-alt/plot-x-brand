@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { asset } from "../asset";
 import { TopBar } from "../chrome";
 
@@ -9,20 +10,20 @@ const stats = [
 ];
 
 const comments = [
-  { text: "boss", likes: "9K", replies: "900", impressions: "10,290", emv: "$14,523", by: "Robert Wallis", tone: "#f6e1e6", ink: "#c78181", thumb: asset("/figma/post-b.png") },
-  { text: "Love how you styled this! Our community is loving the Fenty foundation with that glow lately ✨", likes: "8K", replies: "780", impressions: "9,882", emv: "$12,523", by: "Martin Levin", tone: "#f8e8ca", ink: "#9d762e", thumb: asset("/figma/post-a.png") },
-  { text: "We see you!! This energy is giving ✨ empowered ✨ — love it!", likes: "7K", replies: "670", impressions: "8,656", emv: "$10,523", by: "Roger Lipshutz", tone: "#cde2df", ink: "#698884", thumb: asset("/figma/ob-thumb.png") },
-  { text: "This is what self-expression looks like. Thank you for inspiring us 💕 #SephoraSquad", likes: "5.6K", replies: "500", impressions: "7,433", emv: "$5,523", by: "Martin Baptista", tone: "#e8e2ed", ink: "#726e87", thumb: asset("/figma/post-c.png") },
-  { text: "Obsessed with this vibe. We’re sending this", likes: "2.3K", replies: "456", impressions: "6,434", emv: "$14,543", by: "Maren George", tone: "#dfe5f1", ink: "#697b88", thumb: asset("/figma/post-d.png") },
+  { text: "boss", likes: "9K", replies: "900", impressions: "10,290", emv: "$14,523", by: "Robert Wallis", tone: "var(--tone-rose)", ink: "var(--ink-rose)", thumb: asset("/figma/post-b.png") },
+  { text: "Love how you styled this! Our community is loving the Fenty foundation with that glow lately ✨", likes: "8K", replies: "780", impressions: "9,882", emv: "$12,523", by: "Martin Levin", tone: "var(--tone-sand)", ink: "var(--ink-sand)", thumb: asset("/figma/post-a.png") },
+  { text: "We see you!! This energy is giving ✨ empowered ✨ — love it!", likes: "7K", replies: "670", impressions: "8,656", emv: "$10,523", by: "Roger Lipshutz", tone: "var(--tone-teal)", ink: "var(--ink-teal)", thumb: asset("/figma/ob-thumb.png") },
+  { text: "This is what self-expression looks like. Thank you for inspiring us 💕 #SephoraSquad", likes: "5.6K", replies: "500", impressions: "7,433", emv: "$5,523", by: "Martin Baptista", tone: "var(--tone-lilac)", ink: "var(--ink-lilac)", thumb: asset("/figma/post-c.png") },
+  { text: "Obsessed with this vibe. We’re sending this", likes: "2.3K", replies: "456", impressions: "6,434", emv: "$14,543", by: "Maren George", tone: "var(--tone-blue)", ink: "var(--ink-blue)", thumb: asset("/figma/post-d.png") },
 ];
 
 const leaders = [
-  { rank: "1", name: "Robert Wallis", engagement: "9K", average: "9K", posts: "9K", likes: "10,290", score: "9.8", scoreBg: "#e0e4ca", scoreInk: "#888569", tone: "#f6e1e6", ink: "#c78181" },
-  { rank: "2", name: "Martin Levin", engagement: "8K", average: "8K", posts: "8K", likes: "9,882", score: "8.6", scoreBg: "#e0e4ca", scoreInk: "#888569", tone: "#f8e8ca", ink: "#9d762e" },
-  { rank: "3", name: "Roger Lipshutz", engagement: "7K", average: "7K", posts: "7K", likes: "8,656", score: "5.6", scoreBg: "#d9e3f3", scoreInk: "#697b88", tone: "#cde2df", ink: "#698884" },
-  { rank: "4", name: "Martin Baptista", engagement: "5.6K", average: "5.6K", posts: "5.6K", likes: "7,433", score: "5.2", scoreBg: "#d9e3f3", scoreInk: "#697b88", tone: "#e8e2ed", ink: "#726e87" },
-  { rank: "4", name: "Maren George", engagement: "5.6K", average: "5.6K", posts: "5.6K", likes: "7,433", score: "3.5", scoreBg: "#f6e1e6", scoreInk: "#886969", tone: "#dfe5f1", ink: "#697b88" },
-  { rank: "4", name: "Maria Roggers", engagement: "1k", average: "1k", posts: "5.6K", likes: "7,433", score: "2.6", scoreBg: "#f6e1e6", scoreInk: "#886969", tone: "#e8e2ed", ink: "#726e87" },
+  { rank: "1", name: "Robert Wallis", engagement: "9K", average: "9K", posts: "9K", likes: "10,290", score: "9.8", scoreBg: "var(--score-green-bg)", scoreInk: "var(--score-green-ink)", tone: "var(--tone-rose)", ink: "var(--ink-rose)" },
+  { rank: "2", name: "Martin Levin", engagement: "8K", average: "8K", posts: "8K", likes: "9,882", score: "8.6", scoreBg: "var(--score-green-bg)", scoreInk: "var(--score-green-ink)", tone: "var(--tone-sand)", ink: "var(--ink-sand)" },
+  { rank: "3", name: "Roger Lipshutz", engagement: "7K", average: "7K", posts: "7K", likes: "8,656", score: "5.6", scoreBg: "var(--score-blue-bg)", scoreInk: "var(--score-blue-ink)", tone: "var(--tone-teal)", ink: "var(--ink-teal)" },
+  { rank: "4", name: "Martin Baptista", engagement: "5.6K", average: "5.6K", posts: "5.6K", likes: "7,433", score: "5.2", scoreBg: "var(--score-blue-bg)", scoreInk: "var(--score-blue-ink)", tone: "var(--tone-lilac)", ink: "var(--ink-lilac)" },
+  { rank: "4", name: "Maren George", engagement: "5.6K", average: "5.6K", posts: "5.6K", likes: "7,433", score: "3.5", scoreBg: "var(--score-rose-bg)", scoreInk: "var(--score-rose-ink)", tone: "var(--tone-blue)", ink: "var(--ink-blue)" },
+  { rank: "4", name: "Maria Roggers", engagement: "1k", average: "1k", posts: "5.6K", likes: "7,433", score: "2.6", scoreBg: "var(--score-rose-bg)", scoreInk: "var(--score-rose-ink)", tone: "var(--tone-lilac)", ink: "var(--ink-lilac)" },
 ];
 
 function Delta({ value, down = false }: { value: string; down?: boolean }) {
@@ -141,8 +142,8 @@ export function Outbound() {
             </div>
             <div className="ob-plot">
               <p className="ob-high">All time high</p>
-              <img className="ob-fill" src={asset("/figma/chart-fill.svg")} alt="" />
-              <img className="ob-line" src={asset("/figma/chart-line.svg")} alt="" />
+              <span className="ob-fill" style={{ "--mask": `url(${asset("/figma/chart-fill.svg")})` } as CSSProperties} />
+              <span className="ob-line" style={{ "--mask": `url(${asset("/figma/chart-line.svg")})` } as CSSProperties} />
               <div className="ob-x">
                 {["Feb 26", "Mar 4", "Mar 11", "Mar 18", "Mar 25", "Apr 1", "Apr 8", "Apr 15", "Apr 22", "Apr 29", "May 6", "May 13", "May 20"].map((label) => (
                   <span key={label}>{label}</span>
