@@ -4,21 +4,34 @@ import { Chat } from "./pages/Chat";
 import { Newsfeed } from "./pages/Newsfeed";
 import { Outbound } from "./pages/Outbound";
 
-function readRoute(): { page: PageId; font: FontId } {
-  const [page, font] = window.location.hash.replace(/^#/, "").split("/");
-  return { page: pageById(page ?? "").id, font: fontById(font ?? "").id };
+type Palette = "original" | "new";
+
+const palettes: { id: Palette; label: string }[] = [
+  { id: "original", label: "Original" },
+  { id: "new", label: "New colors" },
+];
+
+function readRoute(): { page: PageId; font: FontId; palette: Palette } {
+  const [page, font, palette] = window.location.hash.replace(/^#/, "").split("/");
+  return { page: pageById(page ?? "").id, font: fontById(font ?? "").id, palette: palette === "new" ? "new" : "original" };
 }
 
 export default function App() {
   const initial = readRoute();
   const [page, setPage] = useState<PageId>(initial.page);
   const [fontId, setFontId] = useState<FontId>(initial.font);
+  const [palette, setPalette] = useState<Palette>(initial.palette);
   const font = fontById(fontId);
 
   useEffect(() => {
-    const next = `#${page}/${fontId}`;
+    const next = `#${page}/${fontId}${palette === "new" ? "/new" : ""}`;
     if (window.location.hash !== next) history.replaceState(null, "", next);
-  }, [page, fontId]);
+  }, [page, fontId, palette]);
+
+  useEffect(() => {
+    if (palette === "new") document.documentElement.dataset.palette = "new";
+    else delete document.documentElement.dataset.palette;
+  }, [palette]);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -33,6 +46,9 @@ export default function App() {
         const index = fonts.findIndex((item) => item.id === fontId);
         const delta = event.key === "ArrowRight" ? 1 : -1;
         setFontId(fonts[(index + delta + fonts.length) % fonts.length].id);
+      }
+      if (event.key === "c" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        setPalette((current) => (current === "new" ? "original" : "new"));
       }
       if (/^[0-9]$/.test(event.key)) {
         const index = event.key === "0" ? 9 : Number(event.key) - 1;
@@ -60,6 +76,20 @@ export default function App() {
               role="tab"
               aria-selected={item.id === page}
               onClick={() => setPage(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <div className="dock-palette" role="radiogroup" aria-label="Colors" title="Press C to switch">
+          {palettes.map((item) => (
+            <button
+              key={item.id}
+              className={item.id === palette ? "is-on" : ""}
+              type="button"
+              role="radio"
+              aria-checked={item.id === palette}
+              onClick={() => setPalette(item.id)}
             >
               {item.label}
             </button>
