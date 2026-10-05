@@ -59,8 +59,8 @@
   --lilac-bg: #e0def3;
   --lilac-ink: #776a8b;
   --chart-ink: #776a8b;
-  --chart-line: #a094c1;
-  --chart-fill: #e0def3;
+  --chart-line: #c8bcf5;
+  --chart-fill: #c1bde7; /* chart-fill.svg is 50% opacity; renders as #e0def3 on white */
   --teal-wash: #ddeaf8;
   --teal-ink: #4d6590;
   --tip-bg: rgba(247, 242, 245, 0.8);
