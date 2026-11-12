@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { asset } from "../../asset";
 import { mountSavedViews } from "./engine";
 import "./saved-views.css";
@@ -13,7 +13,7 @@ function Icon({ name, size = 16 }: { name: string; size?: number }) {
 
 function NavLink({ icon, label, on = false, badge }: { icon: string; label: string; on?: boolean; badge?: ReactNode }) {
   return (
-    <a className={on ? "p-nav is-on" : "p-nav"} href="#saved-views" onClick={(e) => e.preventDefault()}>
+    <a className={on ? "p-nav is-on" : "p-nav"} href="#saved-views" title={label} onClick={(e) => e.preventDefault()}>
       <Icon name={icon} />
       <span className="p-nav-l">{label}</span>
       {badge}
@@ -37,9 +37,9 @@ function Bookmark({ title, brand, img }: { title: string; brand: string; img: st
   );
 }
 
-function Sidebar() {
+function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   return (
-    <aside className="p-side" aria-label="Workspace">
+    <aside className="p-side" aria-label="Workspace" id="p-side">
       <div className="p-side-scroll">
         <div className="p-brand">
           <span className="p-brand-pick">
@@ -47,7 +47,15 @@ function Sidebar() {
             <span>Airbnb</span>
             <Icon name="sb-brand-chev.svg" size={14} />
           </span>
-          <button type="button" className="p-collapse" aria-label="Close sidebar">
+          <button
+            type="button"
+            className="p-collapse"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
+            aria-controls="p-side"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={onToggle}
+          >
             <Icon name="sb-collapse.svg" size={24} />
           </button>
         </div>
@@ -142,6 +150,7 @@ function TopBar() {
 /** Saved views on the production Engagement page: variant A (Filter menu) and variant B (Toolbar split button). */
 export function SavedViews() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -160,8 +169,8 @@ export function SavedViews() {
   }, []);
 
   return (
-    <div className="sv" ref={rootRef}>
-      <Sidebar />
+    <div className={collapsed ? "sv is-collapsed" : "sv"} ref={rootRef}>
+      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
       <main className="p-main">
         <TopBar />
         <div className="p-page">

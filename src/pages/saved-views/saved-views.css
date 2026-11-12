@@ -447,3 +447,25 @@
 .sv .vrow{padding-left:10px}
 .sv .vrow.on{font-weight:500}
 .sv .vrow .tick{width:15px;height:15px;color:var(--ink);flex:none}
+
+/* ---------- collapsed sidebar: an icon rail ---------- */
+.sv{transition:grid-template-columns .2s ease}
+.sv.is-collapsed{grid-template-columns:64px minmax(0,1fr)}
+.sv.is-collapsed .p-side-scroll{padding:16px 12px 24px;align-items:center}
+.sv.is-collapsed .p-brand{flex-direction:column;height:auto;gap:8px;padding-bottom:8px}
+.sv.is-collapsed .p-brand-pick{padding:4px 0}
+.sv.is-collapsed .p-brand-pick>span,.sv.is-collapsed .p-brand-pick>.p-ic{display:none}
+.sv.is-collapsed .p-brand-pick>img:first-child{margin:0}
+.sv.is-collapsed .p-collapse{margin:0;transform:scaleX(-1)}
+.sv.is-collapsed .p-create{display:none}
+.sv.is-collapsed .p-nav{width:40px;justify-content:center;padding:12px}
+.sv.is-collapsed .p-nav-l,.sv.is-collapsed .p-nav .p-count,.sv.is-collapsed .p-nav .p-pill,.sv.is-collapsed .p-nav>.p-ic:not(:first-child),.sv.is-collapsed .p-up{display:none}
+.sv.is-collapsed .p-sub,.sv.is-collapsed .p-bm{display:none}
+.sv.is-collapsed .p-rule{width:32px;margin:8px auto}
+.sv.is-collapsed .p-side-foot{padding:12px 8px 8px;justify-items:center}
+.sv.is-collapsed .p-acct>div,.sv.is-collapsed .p-settings>span{font-size:0;gap:0}
+.sv.is-collapsed .p-acct>div{display:none}
+.sv.is-collapsed .p-settings{padding:8px 0}
+.sv.is-collapsed .p-settings button{display:none}
+.sv.is-collapsed .p-rule.flush{width:32px}
+@media (prefers-reduced-motion:reduce){.sv{transition:none}}
