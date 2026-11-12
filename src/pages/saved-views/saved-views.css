@@ -431,7 +431,7 @@
 .sv .dlg .sx{width:28px;height:28px;border-radius:8px;opacity:1;color:var(--ink)}
 .sv .dlg .sx svg{width:16px;height:16px}
 .sv .dlg .sx:hover{background:var(--gray-100)}
-.sv .dlg .dacts{justify-content:flex-start}
+.sv .dlg .dacts{justify-content:flex-end}
 /* Row type as in the Labels dialog: Diatype regular, names in ink, secondary text in gray */
 .sv .dlg .srow{font-size:15px}
 .sv .dlg .sv-v{font-weight:400;color:var(--ink)}
