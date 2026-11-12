@@ -101,7 +101,7 @@ export const VARIANTS: Record<VariantId, { name: string; save: string; views: st
     name: "Filter menu",
     save: "Open <b>Filter</b>: <b>Save view</b> is pinned at the top of the menu, next to your saved views, so it never scrolls away. It appears as soon as a filter changes.",
     views: "Pick a view from the pinned list to apply it. The selected view’s checkbox is ticked, and the Filter button takes its name. Click the selected view again to exit it.",
-    edit: "Changing a selected view marks it <b>Edited</b> (in the list and on the Filter button) and swaps the button for <b>Save as new · Update</b>.",
+    edit: "Changing a selected view marks it <b>Not saved</b> (in the list and on the Filter button) and swaps the button for <b>Save as new · Update</b>.",
     refs: [
       ["Air", "https://mobbin.com/screens/720054e9-1814-4363-b820-b227d54fbadf"],
       ["Salesforce", "https://mobbin.com/screens/3d37072e-5be2-4373-9714-d51733fc3296"],
@@ -244,7 +244,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       h += `<div class="vlist" role="listbox" aria-label="Saved views">`;
       S.views.forEach((x) => {
         const on = S.active === x.id;
-        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pcb">${I("check")}</span><span class="pl"><span>${esc(x.name)}</span><small>${x.vis === "me" ? "Only me" : "Team"}</small></span>${on && dirty ? '<span class="edited">Edited</span>' : ""}</button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
+        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pcb">${I("check")}</span><span class="pl"><span>${esc(x.name)}</span><small>${x.vis === "me" ? "Only me" : "Team"}</small></span>${on && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
       });
       if (!S.views.length) h += `<div class="fh-hint">No saved views yet. Set filters below, then save.</div>`;
       h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
@@ -264,18 +264,18 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     const v = S.variant, dirty = isDirty(), sv = view(S.active);
     let h = '<div class="p-tbrow">';
     if (v === "B") {
-      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button ${dirty && !sv ? 'data-act="save-new"' : 'data-open="splitm"'} title="${sv ? esc(sv.name) : dirty ? "Save these filters as a view" : "Saved views"}"><span class="p-tile">${I("bookmark")}</span><span class="tb-label">${sv ? esc(sv.name) : "Save view"}</span>${sv && dirty ? '<span class="edited">Edited</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv, dirty), "right wide")}</div>`;
+      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button ${dirty && !sv ? 'data-act="save-new"' : 'data-open="splitm"'} title="${sv ? esc(sv.name) : dirty ? "Save these filters as a view" : "Saved views"}"><span class="p-tile">${I("bookmark")}</span><span class="tb-label">${sv ? esc(sv.name) : "Save view"}</span>${sv && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv, dirty), "right wide")}</div>`;
     }
     h += `<div class="rel tb">${tbButton("status", "tb-status.svg", "Status", S.q.status.length)}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
     const inView = v === "A" && sv;
     const flabel = inView ? esc(sv.name) : "Filter";
-    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="edited">Edited</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
+    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="edited">Not saved</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
     h += `<div class="rel tb">${tbButton("sort", "tb-sort.svg", "Sort by", 0)}${menu("sort", `<div class="pg"><div class="ph">Sort by</div>${SORTS.map((x) => `<button class="pr ${S.q.sort === x ? "on" : ""}" data-act="sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${S.q.sort === x ? tick() : ""}</button>`).join("")}</div>`, "right")}</div>`;
     return h + "</div>";
   }
 
   function splitMenu(sv: SavedView | undefined, dirty: boolean) {
-    const list = `<div class="pg"><div class="ph"><span>Views <span style="margin-left:2px">${S.views.length}</span></span>${sv ? `<button class="lnk ph-x" data-act="go" data-id="all">${I("close")}Exit view</button>` : ""}</div>${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pcb">${I("check")}</span><span class="pl"><span>${esc(v.name)}</span><small>${v.vis === "me" ? "Only me" : "Team"}</small></span>${S.active === v.id && dirty ? '<span class="edited">Edited</span>' : ""}</button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
+    const list = `<div class="pg"><div class="ph"><span>Views <span style="margin-left:2px">${S.views.length}</span></span>${sv ? `<button class="lnk ph-x" data-act="go" data-id="all">${I("close")}Exit view</button>` : ""}</div>${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pcb">${I("check")}</span><span class="pl"><span>${esc(v.name)}</span><small>${v.vis === "me" ? "Only me" : "Team"}</small></span>${S.active === v.id && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
     let h = "";
     if (!dirty && !sv) h += `<div class="pg"><div class="fempty" style="padding:10px 10px 8px;max-width:260px">Change a filter, then save it as a view.</div></div>`;
     else if (dirty) h += `<div class="pg"><button class="pr" data-act="save-new">${I("plus")}<span class="pl"><span>Save as new view</span></span></button></div>`;
