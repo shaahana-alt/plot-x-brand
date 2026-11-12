@@ -375,7 +375,7 @@
 @media (prefers-reduced-motion:reduce){.sv *,.sv *::before,.sv *::after{animation:none!important;transition:none!important}}
 
 /* ---------- Save view / Rename dialog, built from the Plot design system ---------- */
-.sv .dlg{font-family:"ABC Diatype","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;gap:18px;--danger:#C93B3B;--danger-text:#A33030}
+.sv .dlg{font-family:var(--p-ui);gap:18px;--danger:#C93B3B;--danger-text:#A33030}
 .sv .dlg .hd{align-items:center}
 /* Type follows the design system scale: dialog title = h2 (MF Ionica 28/400/1.1), label = Small body Medium, helper = Meta */
 .sv .dlg h2{font-family:"MF Ionica",Georgia,serif;font-size:28px;font-weight:400;line-height:1.1;color:var(--ink);margin:0}
