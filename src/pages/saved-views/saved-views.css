@@ -469,3 +469,7 @@
 .sv.is-collapsed .p-settings button{display:none}
 .sv.is-collapsed .p-rule.flush{width:32px}
 @media (prefers-reduced-motion:reduce){.sv{transition:none}}
+/* Menu footer actions (New view / Exit view), as in the Labels menu */
+.sv .pop .pfoot{border-top:1px solid var(--gray-200);margin-top:6px;padding-top:6px}
+.sv .pop .pfoot .pr{font-size:14px;color:var(--ink);gap:12px}
+.sv .pop .pfoot .pr>svg{width:16px;height:16px;color:var(--ink)}
