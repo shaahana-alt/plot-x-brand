@@ -366,7 +366,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
     // What gets saved, stacked as plain rows in Small body. Hovering a row shows × to leave that filter out of the view.
     const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) =>
-      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}">${I("close")}</button>` : ""}</li>`;
+      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}" title="Remove from this view">${I("trash")}</button>` : ""}</li>`;
     const items = [chipFor("spark", "Topic", "Airbnb’s Brand Mention")];
     if (q.search.trim()) items.push(chipFor("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
     if (q.status.length) items.push(chipFor("status", "Status", q.status.join(", "), "status"));

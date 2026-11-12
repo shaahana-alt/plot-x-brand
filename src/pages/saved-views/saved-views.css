@@ -423,3 +423,20 @@
 .sv .dlg .sx:hover{background:var(--gray-200);color:var(--ink)}
 .sv .dlg .sx svg{width:12px;height:12px}
 @media (hover:none){.sv .dlg .sx{opacity:1}}
+
+/* Rows separated by dividers with an always-visible delete icon, as in the Labels dialog; actions left aligned */
+.sv .dlg .slist{gap:0;border-top:1px solid var(--gray-100)}
+.sv .dlg .srow{min-height:44px;padding:6px 4px 6px 8px;border-radius:0;border-bottom:1px solid var(--gray-100);grid-template-columns:16px 92px minmax(0,1fr) 28px}
+.sv .dlg .srow:hover{background:none}
+.sv .dlg .sx{width:28px;height:28px;border-radius:8px;opacity:1;color:var(--ink)}
+.sv .dlg .sx svg{width:16px;height:16px}
+.sv .dlg .sx:hover{background:var(--gray-100)}
+.sv .dlg .dacts{justify-content:flex-start}
+/* Row type as in the Labels dialog: Diatype regular, names in ink, secondary text in gray */
+.sv .dlg .srow{font-size:15px}
+.sv .dlg .sv-v{font-weight:400;color:var(--ink)}
+.sv .dlg .sk{color:var(--gray-600)}
+.sv .dlg .srow>svg{color:var(--gray-500)}
+.sv .dlg .srow{min-height:46px}
+.sv .dlg .dacts .btn-dark,.sv .dlg .dacts .btn-soft{font-weight:500;font-size:15px;height:40px;padding:0 18px}
+.sv .dlg .sx svg{width:15px;height:15px}
