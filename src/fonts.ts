@@ -18,6 +18,7 @@ export const pages = [
   { id: "outbound", label: "Outbound" },
   { id: "chat", label: "AI chat" },
   { id: "newsfeed", label: "Newsfeed" },
+  { id: "saved-views", label: "Saved views" },
 ] as const;
 
 export type PageId = (typeof pages)[number]["id"];
