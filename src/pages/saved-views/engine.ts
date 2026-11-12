@@ -245,7 +245,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       h += `<div class="vlist" role="listbox" aria-label="Saved views">`;
       S.views.forEach((x) => {
         const on = S.active === x.id;
-        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pl"><span>${esc(x.name)}</span><small>${x.vis === "me" ? "Only me" : "Team"}</small></span>${on && dirty ? '<span class="edited">Not saved</span>' : ""}${on ? tick() : ""}</button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
+        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pl"><span>${esc(x.name)}</span></span>${on && dirty ? '<span class="edited">Not saved</span>' : ""}${on ? tick() : ""}<span class="vvis">${x.vis === "me" ? "Only me" : "Team"}</span></button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
       });
       if (!S.views.length) h += `<div class="fh-hint">No saved views yet. Set filters below, then save.</div>`;
       h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
@@ -277,29 +277,35 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
 
   function splitMenu(sv: SavedView | undefined) {
     const dirty = isDirty();
-    const list = `<div class="pg">${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" aria-current="${S.active === v.id}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pl"><span>${esc(v.name)}</span><small>${v.vis === "me" ? "Only me" : "Team"}</small></span>${S.active === v.id && dirty ? '<span class="edited">Not saved</span>' : ""}${S.active === v.id ? tick() : ""}</button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
+    const list = `<div class="pg">${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" aria-current="${S.active === v.id}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pl"><span>${esc(v.name)}</span></span>${S.active === v.id && dirty ? '<span class="edited">Not saved</span>' : ""}${S.active === v.id ? tick() : ""}<span class="vvis">${v.vis === "me" ? "Only me" : "Team"}</span></button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
     // Actions sit below a divider at the bottom, like "New label" in the Labels menu; reads "Save current view".
     const foot = `<div class="pg pfoot"><button class="pr" data-act="save-new">${I("plus")}<span class="pl"><span>Save current view</span></span></button>${sv ? `<button class="pr" data-act="go" data-id="all">${I("close")}<span class="pl"><span>Exit view</span></span></button>` : ""}</div>`;
     return list + foot;
   }
 
-  function viewSummary(q: Query) {
-    const rows: [string, string, string][] = [];
-    if (q.search.trim()) rows.push(["search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`]);
-    rows.push(["status", "Status", q.status.length ? q.status.join(", ") : "Any"]);
-    if (q.brand) rows.push(["store", "Only", "Brand mentions"]);
+  /* A saved view's contents, in the same rows as the Save view dialog. Hovering a row shows a delete
+     button that takes that filter out of the saved view (with Undo). */
+  function viewSummary(x: SavedView) {
+    const q = x.q, row = (ic: string, k: string, v: string, key?: string) =>
+      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from ${esc(x.name)}" title="Remove from this view" data-act="rmvf" data-id="${x.id}" data-k="${key}" data-keep="1">${I("trash")}</button>` : ""}</li>`;
+    const rows: string[] = [];
+    if (q.search.trim()) rows.push(row("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
+    rows.push(q.status.length ? row("status", "Status", q.status.join(", "), "status") : row("status", "Status", "Any"));
+    if (q.brand) rows.push(row("store", "Only", "Brand mentions", "brand"));
     CATS.forEach((c) => {
-      if (q.f[c.k]?.length) rows.push([c.icon, c.label, q.f[c.k].join(", ")]);
+      if (q.f[c.k]?.length) rows.push(row(c.icon, c.label, q.f[c.k].join(", "), c.k));
     });
-    if (!q.brand && !CATS.some((c) => q.f[c.k]?.length)) rows.push(["sliders", "Filters", "None"]);
-    rows.push(["sort", "Sort", q.sort]);
-    return `<div class="vsum">${rows.map((r) => `<div>${I(r[0])}<em>${r[1]}</em><span>${esc(r[2])}</span></div>`).join("")}</div>`;
+    if (q.date) rows.push(row("calendar", "Date", DATE_RANGE, "date"));
+    if (!q.brand && !q.date && !CATS.some((c) => q.f[c.k]?.length)) rows.push(row("sliders", "Filters", "None"));
+    rows.push(row("sort", "Sort", q.sort, q.sort !== BLANK.sort ? "sort" : undefined));
+    return `<ul class="slist">${rows.join("")}</ul>`;
   }
+
 
   function subMenu() {
     const x = view(S.sub);
     if (!x) return "";
-    return `<div class="pop sub" data-pop role="menu" aria-label="${esc(x.name)} options"><div class="pg">${viewSummary(x.q)}</div><div class="pg">${S.active === x.id && isDirty() ? `<button class="pr" data-act="update">${I("refresh")}<span class="pl"><span>Update view</span></span></button><button class="pr" data-act="reset">${I("close")}<span class="pl"><span>Discard changes</span></span></button></div><div class="pg">` : ""}
+    return `<div class="pop sub" data-pop role="menu" aria-label="${esc(x.name)} options"><div class="pg">${viewSummary(x)}</div><div class="pg">${S.active === x.id && isDirty() ? `<button class="pr" data-act="update">${I("refresh")}<span class="pl"><span>Update view</span></span></button><button class="pr" data-act="reset">${I("close")}<span class="pl"><span>Discard changes</span></span></button></div><div class="pg">` : ""}
   <button class="pr" data-act="rename" data-id="${x.id}">${I("pen")}<span class="pl"><span>Rename</span></span></button>
   <button class="pr" data-act="dup" data-id="${x.id}">${I("copy")}<span class="pl"><span>Duplicate</span></span></button>
   <button class="pr" data-act="vis" data-id="${x.id}">${I(x.vis === "me" ? "users" : "lock")}<span class="pl"><span>${x.vis === "me" ? "Share with team" : "Make private"}</span></span></button></div>
@@ -476,6 +482,24 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         else if (d.k === "sort") { q.sort = BLANK.sort; S.modal.noSort = true; }
         else delete q.f[d.k!];
         S.modal.focused = true;
+        break;
+      }
+      case "rmvf": {
+        const x = view(d.id!);
+        if (!x) break;
+        const snap = snapshot(), wasClean = S.active === x.id && !isDirty();
+        const strip = (q: Query) => {
+          if (d.k === "search") q.search = "";
+          else if (d.k === "status") q.status = [];
+          else if (d.k === "brand") q.brand = false;
+          else if (d.k === "date") q.date = false;
+          else if (d.k === "sort") q.sort = BLANK.sort;
+          else delete q.f[d.k!];
+        };
+        strip(x.q);
+        if (wasClean) S.q = clone(x.q); // keep the open view in sync when it had no unsaved changes
+        const label = d.k === "date" ? "Date" : d.k === "brand" ? "Brand mentions" : d.k === "search" ? "Search" : d.k === "status" ? "Status" : d.k === "sort" ? "Sort" : CATS.find((c) => c.k === d.k)?.label;
+        toast(`Removed ${label} from “${x.name}”`, snap);
         break;
       }
       case "clr-name": {

@@ -412,37 +412,37 @@
 .sv .dlg .inp .clr[hidden]{display:none}
 
 /* Saved filters, stacked as plain text rows (Small body; key in gray-700, value in Small body Medium) */
-.sv .dlg .slist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
-.sv .dlg .srow{display:grid;grid-template-columns:16px 92px minmax(0,1fr) 24px;align-items:center;column-gap:10px;min-height:34px;padding:5px 6px 5px 8px;border-radius:9px;font-size:14px;line-height:1.45}
-.sv .dlg .srow:hover{background:var(--gray-50)}
-.sv .dlg .srow>svg{width:16px;height:16px;color:var(--gray-600)}
-.sv .dlg .sk{color:var(--gray-700)}
-.sv .dlg .sv-v{color:var(--ink);font-weight:500;min-width:0;overflow-wrap:anywhere}
-.sv .dlg .sx{grid-column:4;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--gray-600);opacity:0;transition:opacity .12s,background .12s}
-.sv .dlg .srow:hover .sx,.sv .dlg .sx:focus-visible{opacity:1}
-.sv .dlg .sx:hover{background:var(--gray-200);color:var(--ink)}
-.sv .dlg .sx svg{width:12px;height:12px}
-@media (hover:none){.sv .dlg .sx{opacity:1}}
+.sv :is(.dlg,.pop.sub) .slist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.sv :is(.dlg,.pop.sub) .srow{display:grid;grid-template-columns:16px 92px minmax(0,1fr) 24px;align-items:center;column-gap:10px;min-height:34px;padding:5px 6px 5px 8px;border-radius:9px;font-size:14px;line-height:1.45}
+.sv :is(.dlg,.pop.sub) .srow:hover{background:var(--gray-50)}
+.sv :is(.dlg,.pop.sub) .srow>svg{width:16px;height:16px;color:var(--gray-600)}
+.sv :is(.dlg,.pop.sub) .sk{color:var(--gray-700)}
+.sv :is(.dlg,.pop.sub) .sv-v{color:var(--ink);font-weight:500;min-width:0;overflow-wrap:anywhere}
+.sv :is(.dlg,.pop.sub) .sx{grid-column:4;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--gray-600);opacity:0;transition:opacity .12s,background .12s}
+.sv :is(.dlg,.pop.sub) .srow:hover .sx,.sv .dlg .sx:focus-visible{opacity:1}
+.sv :is(.dlg,.pop.sub) .sx:hover{background:var(--gray-200);color:var(--ink)}
+.sv :is(.dlg,.pop.sub) .sx svg{width:12px;height:12px}
+@media (hover:none){.sv :is(.dlg,.pop.sub) .sx{opacity:1}}
 
 /* Rows separated by dividers with an always-visible delete icon, as in the Labels dialog; actions left aligned */
-.sv .dlg .slist{gap:0;border-top:1px solid var(--gray-100)}
-.sv .dlg .srow{min-height:44px;padding:6px 4px 6px 8px;border-radius:0;border-bottom:1px solid var(--gray-100);grid-template-columns:16px 92px minmax(0,1fr) 28px}
-.sv .dlg .srow:hover{background:none}
-.sv .dlg .sx{width:28px;height:28px;border-radius:8px;opacity:1;color:var(--ink)}
-.sv .dlg .sx svg{width:16px;height:16px}
-.sv .dlg .sx:hover{background:var(--gray-100)}
+.sv :is(.dlg,.pop.sub) .slist{gap:0;border-top:1px solid var(--gray-100)}
+.sv :is(.dlg,.pop.sub) .srow{min-height:44px;padding:6px 4px 6px 8px;border-radius:0;border-bottom:1px solid var(--gray-100);grid-template-columns:16px 92px minmax(0,1fr) 28px}
+.sv :is(.dlg,.pop.sub) .srow:hover{background:none}
+.sv :is(.dlg,.pop.sub) .sx{width:28px;height:28px;border-radius:8px;opacity:1;color:var(--ink)}
+.sv :is(.dlg,.pop.sub) .sx svg{width:16px;height:16px}
+.sv :is(.dlg,.pop.sub) .sx:hover{background:var(--gray-100)}
 .sv .dlg .dacts{justify-content:flex-end}
 /* Row type as in the Labels dialog: Diatype regular, names in ink, secondary text in gray */
-.sv .dlg .srow{font-size:15px}
-.sv .dlg .sv-v{font-weight:400;color:var(--ink)}
-.sv .dlg .sk{color:var(--gray-600)}
-.sv .dlg .srow>svg{color:var(--gray-500)}
-.sv .dlg .srow{min-height:46px}
+.sv :is(.dlg,.pop.sub) .srow{font-size:15px}
+.sv :is(.dlg,.pop.sub) .sv-v{font-weight:400;color:var(--ink)}
+.sv :is(.dlg,.pop.sub) .sk{color:var(--gray-600)}
+.sv :is(.dlg,.pop.sub) .srow>svg{color:var(--gray-500)}
+.sv :is(.dlg,.pop.sub) .srow{min-height:46px}
 .sv .dlg .dacts .btn-dark,.sv .dlg .dacts .btn-soft{font-weight:500;font-size:15px;height:40px;padding:0 18px}
-.sv .dlg .sx svg{width:15px;height:15px}
+.sv :is(.dlg,.pop.sub) .sx svg{width:15px;height:15px}
 /* Dividers only between rows, none above the first or below the last */
-.sv .dlg .slist{border-top:0}
-.sv .dlg .srow:last-child{border-bottom:0}
+.sv :is(.dlg,.pop.sub) .slist{border-top:0}
+.sv :is(.dlg,.pop.sub) .srow:last-child{border-bottom:0}
 /* Saved views are single-select: the open view gets a tick and medium weight, no checkboxes */
 .sv .vrow{padding-left:10px}
 .sv .vrow.on{font-weight:500}
@@ -478,3 +478,15 @@
 .sv .vline:hover,.sv .vline:has(.vmore.on){background:var(--gray-50)}
 .sv .vline .vrow:hover,.sv .vline .vrow.on:hover{background:none}
 .sv .vline .vmore:hover,.sv .vline .vmore.on{background:none;color:var(--ink)}
+/* Privacy sits at the far right next to the arrow, like "Any" in the filter menu */
+.sv .vrow .vvis{margin-left:auto;font-size:13.5px;font-weight:400;color:var(--gray-500);white-space:nowrap;padding-left:8px}
+.sv .vline .vrow{padding-right:36px}
+.sv .vline .vmore{right:4px}
+
+/* Flyout summary: same rows as the dialog, roomier flyout, delete shows on hover */
+.sv .pop.sub{width:380px;max-width:calc(100vw - 16px);padding:8px}
+.sv .pop.sub .slist{padding:2px 6px 4px}
+.sv .pop.sub .srow{font-size:14px;min-height:40px;grid-template-columns:16px 96px minmax(0,1fr) 28px}
+.sv .pop.sub .sx{opacity:0}
+.sv .pop.sub .srow:hover .sx,.sv .pop.sub .sx:focus-visible{opacity:1}
+.sv .pop.wide{width:340px}
