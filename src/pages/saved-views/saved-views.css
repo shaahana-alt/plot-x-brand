@@ -473,3 +473,8 @@
 .sv .pop .pfoot{border-top:1px solid var(--gray-200);margin-top:6px;padding-top:6px}
 .sv .pop .pfoot .pr{font-size:14px;color:var(--ink);gap:12px}
 .sv .pop .pfoot .pr>svg{width:16px;height:16px;color:var(--ink)}
+/* A saved view row highlights as one grey surface: no separate fill on the › button */
+.sv .vline{border-radius:10px}
+.sv .vline:hover,.sv .vline:has(.vmore.on){background:var(--gray-50)}
+.sv .vline .vrow:hover,.sv .vline .vrow.on:hover{background:none}
+.sv .vline .vmore:hover,.sv .vline .vmore.on{background:none;color:var(--ink)}
