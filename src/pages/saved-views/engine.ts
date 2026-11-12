@@ -22,7 +22,7 @@ type VariantId = "A" | "B";
 type Snapshot = { views: SavedView[]; active: string; q: Query };
 type Modal =
   | { type: "rename"; id: string; focused?: boolean; err?: boolean }
-  | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean };
+  | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean; noSort?: boolean };
 type State = {
   variant: VariantId;
   views: SavedView[];
@@ -375,7 +375,8 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       if (q.f[c.k]?.length) items.push(chipFor(c.icon, c.label, q.f[c.k].join(", "), c.k));
     });
     if (q.date) items.push(chipFor("calendar", "Date", DATE_RANGE, "date"));
-    items.push(chipFor("sort", "Sort", q.sort));
+    // Removing Sort leaves it out of the view, which then opens in the default order (Newest).
+    if (!m.noSort) items.push(chipFor("sort", "Sort", q.sort, "sort"));
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
     <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     <ul class="slist" aria-label="Saved with this view">${items.join("")}</ul>
@@ -471,6 +472,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         else if (d.k === "status") q.status = [];
         else if (d.k === "brand") q.brand = false;
         else if (d.k === "date") q.date = false;
+        else if (d.k === "sort") { q.sort = BLANK.sort; S.modal.noSort = true; }
         else delete q.f[d.k!];
         S.modal.focused = true;
         break;
