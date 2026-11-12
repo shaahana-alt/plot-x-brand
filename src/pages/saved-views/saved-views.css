@@ -440,3 +440,6 @@
 .sv .dlg .srow{min-height:46px}
 .sv .dlg .dacts .btn-dark,.sv .dlg .dacts .btn-soft{font-weight:500;font-size:15px;height:40px;padding:0 18px}
 .sv .dlg .sx svg{width:15px;height:15px}
+/* Dividers only between rows, none above the first or below the last */
+.sv .dlg .slist{border-top:0}
+.sv .dlg .srow:last-child{border-bottom:0}
