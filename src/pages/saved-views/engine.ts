@@ -1,3 +1,5 @@
+import { asset } from "../../asset";
+
 /*
  * Saved views prototype — behaviour ported 1:1 from the published "Saved View Prototypes" artifact.
  * It is a small string-template renderer (as in the original) mounted into a React-owned element,
@@ -12,6 +14,7 @@ type Query = {
   sort: string;
   search: string;
   mode: "regular" | "smart";
+  date?: boolean;
 };
 type Vis = "me" | "team";
 type SavedView = { id: string; name: string; vis: Vis; q: Query };
@@ -67,6 +70,7 @@ const norm = (q: Query) =>
     s: q.sort,
     t: q.search.trim(),
     m: q.mode,
+    d: !!q.date,
   });
 const eq = (a: Query, b: Query) => norm(a) === norm(b);
 
@@ -84,9 +88,9 @@ const CATS = [
 const STATUSES = ["Not started", "In progress", "Done"];
 const SORTS = ["Newest", "Most engagement", "Most mentions"];
 const PRESETS = [
-  { id: "all", name: "All Posts", icon: "box" },
-  { id: "reviewed", name: "Reviewed (7)", icon: "eye" },
-  { id: "labelled", name: "Labelled", icon: "tag" },
+  { id: "all", name: "All Posts", emoji: "🗂️" },
+  { id: "reviewed", name: "Reviewed (0)", emoji: "👩‍💻" },
+  { id: "labelled", name: "Labelled", emoji: "📌" },
 ];
 const BLANK: Query = { brand: false, status: [], f: {}, sort: "Newest", search: "", mode: "regular" };
 
@@ -120,17 +124,35 @@ const seedViews = (): SavedView[] => [
   { id: "v2", name: "Holiday brief creators", vis: "me", q: { brand: true, status: ["Not started"], f: { labels: ["Holiday Brief"], followers: ["Micro (10K–100K)"] }, sort: "Newest", search: "", mode: "regular" } },
   { id: "v3", name: "Brand safety review", vis: "team", q: { brand: false, status: ["Not started", "In progress"], f: { labels: ["Brand Safety"], sentiment: ["Negative"] }, sort: "Most mentions", search: "", mode: "regular" } },
 ];
-const START = (): Query => ({ brand: false, status: ["Not started"], f: { platform: ["Instagram", "TikTok"], followers: ["Micro (10K–100K)"], labels: ["Holiday Brief"] }, sort: "Newest", search: "", mode: "regular" });
+const START = (): Query => ({ brand: false, status: ["Not started"], f: { platform: ["TikTok", "Instagram"] }, sort: "Newest", search: "", mode: "regular", date: true });
+const DATE_RANGE = "11 Nov 2026 - 12 Nov 2026";
 const fresh = (v?: VariantId): State => ({ variant: v || "A", views: seedViews(), active: "all", q: START(), open: null, exp: "platform", modal: null, toast: null, newId: null, sub: null });
 
 const VARIANT_KEY = "sv-variant2";
 
-const CARDS = [
-  { t: "Micro Influencer, Brand Mention", p: "A creator shares an unboxing of a handmade ceramic cup from an Airbnb Experiences pottery workshop.", s: "Positive", c1: "#E3D3C1", c2: "#66513E", who: "@airbnbexperiences", st: ["2.3K", "36", "0", "2.2%"] },
-  { t: "Brand Mention", p: "A golden retriever swims in a pool at an Airbnb rental, highlighting a pet-friendly stay.", s: "Positive", c1: "#BFD7FE", c2: "#495475", who: "@goldie.travels", st: ["1.8K", "8", "0", "0.6%"] },
-  { t: "Brand Safety, Social Queries", p: "A host in Puerto Rico warns investors about hidden expenses like pool maintenance and housekeeping.", s: "Negative", m: 22, c1: "#DCAFC0", c2: "#510C22", who: "@robertogreenjr", st: ["967", "32", "14", "5.8%"] },
-  { t: "Brand Mention", p: "Casa Doon Pop promotes a spacious 3 BHK Airbnb in Dehradun with mountain views.", s: "Positive", m: 2, c1: "#CDB7BF", c2: "#39242D", who: "@casadoonpop", st: ["46", "0", "0", "0%"] },
+type Avatar = string | [letter: string, color: string];
+type Card = {
+  t: string; p: string; media: string; h: number;
+  tags?: ("positive" | "mentions")[]; icons?: string[]; video?: boolean; carousel?: boolean;
+  people?: Avatar[]; who?: string; reach?: string;
+  st: [string, string, string, string]; eng: "eye" | "person";
+};
+/* The ten posts on the production Engagement page, in order. Media heights come from the design. */
+const CARDS: Card[] = [
+  { t: "Brand Mention", p: "A real estate agent promotes studios in São Paulo as an investment, mentioning Airbnb as a way to generate income from short-term rentals.", media: "c1-media.jpg", h: 540.33, tags: ["positive"], icons: ["ic-instagram.svg", "ic-reel.svg"], people: [["r", "#554db3"], ["b", "#9cb34d"], "c1-avatar.jpg"], who: "bernardo_ricardor and 2 others", reach: "1.04K", st: ["465", "34", "10", "9.5%"], eng: "eye" },
+  { t: "Macro Influencer, Brand Mention", p: "Sophia Amoruso cites Airbnb's 2009 early investment as an example of a discovery bet in her VC educational video.", media: "c2-media.png", h: 540.33, tags: ["mentions"], video: true, st: ["1.1K", "41", "9", "6.2%"], eng: "eye" },
+  { t: "Brand Mention", p: "Wadhurst Castle Cottages promotes a last-minute stay at Tawny Owl Lodge, tagging Airbnb as a booking platform for the two-night autumn escape.", media: "c3-media.jpg", h: 540.33, people: ["c3-avatar.jpg"], who: "wadhurstcastlecottage", reach: "559", st: ["N/A", "2", "0", "0.4%"], eng: "person" },
+  { t: "Brand Mention", p: "A Johannesburg creator announces her first brand collaboration with Midnight Muse South Africa, filming the lingerie reveal in an Airbnb in Craighall, Johannesburg.", media: "c4-media.jpg", h: 525.33, tags: ["positive"], icons: ["ic-instagram.svg", "ic-reel.svg"], people: ["c4-avatar.jpg"], who: "mckenziefox.collabs", reach: "904", st: ["103", "12", "1", "13.6%"], eng: "eye" },
+  { t: "Brand Mention, Social Queries: Holiday Brief", p: "A luxury retreat creator promotes The Deer Hut as an Airbnb listing for cozy winter getaways with a log burner and hot chocolate.", media: "c5-media.jpg", h: 540.33, tags: ["positive", "mentions"], people: ["c5-avatar.jpg"], who: "highfieldsestate", reach: "2.61K", st: ["N/A", "2", "0", "0.1%"], eng: "person" },
+  { t: "Brand Mention, Social Queries: Holiday Brief", p: "A creator features a luxury glamping stay inside Colorado sandstone cliffs, tagging @airbnb to highlight the unique accommodation experience.", media: "c6-media.jpg", h: 540.33, tags: ["positive"], icons: ["ic-tag.svg", "ic-instagram.svg", "ic-carousel.svg"], carousel: true, people: ["c6-avatar-a.jpg", "c6-avatar-b.jpg"], who: "zenuncharted and 1 other", reach: "35", st: ["N/A", "3", "0", "8.6%"], eng: "person" },
+  { t: "Brand Mention, Social Queries: Holiday Brief", p: "A traveler describes the view from her Airbnb stay in Kefalonia, Greece, as the most peaceful she has ever had and praises staying in the authentic village of Keramies.", media: "c7-media.jpg", h: 525.33, tags: ["positive"], icons: ["ic-tag.svg", "ic-instagram.svg", "ic-reel.svg"], people: ["c7-avatar.jpg"], who: "places.of.pause", reach: "2.5K", st: ["145", "4", "0", "4.1%"], eng: "eye" },
+  { t: "Micro Influencer, Brand Mention", p: "A muralist family paints a mural for an Airbnb property in Greenville, SC, showcasing their custom mural service.", media: "c8-media.jpg", h: 540.33, icons: ["ic-instagram.svg", "ic-reel.svg"], people: [["s", "#4db38b"], ["a", "#4db3ac"], "c8-avatar.jpg"], who: "esaugarciaalday and 2 others", reach: "14.44K", st: ["785", "28", "9", "5.2%"], eng: "eye" },
+  { t: "Brand Mention, Social Queries: Holiday Brief", p: "An Airbnb host promotes a furnished rental apartment in Ahmedabad, inviting guests to stay.", media: "c9-media.jpg", h: 540.33, tags: ["positive"], icons: ["ic-instagram.svg", "ic-reel.svg"], people: ["c9-avatar.jpg"], who: "thesevensky.co.in", reach: "18", st: ["773", "6", "0", "1.6%"], eng: "eye" },
+  { t: "Brand Mention", p: "A creator promotes The White House BnB in Gwalior, highlighting its rooms, rooftop, and 4.96 rating, and directs viewers to book through Airbnb.", media: "c10-media.jpg", h: 525.33, tags: ["positive"], icons: ["ic-instagram.svg", "ic-reel.svg"], people: [["w", "#4db3ad"], "c10-avatar.jpg"], who: "rishabh_jain_852 and 1 other", reach: "885", st: ["419", "15", "1", "4.1%"], eng: "eye" },
 ];
+
+const A = (n: string) => asset(`/figma/saved-views/${n}`);
+const img = (n: string, w: number, h = w, cls = "p-ic") => `<img class="${cls}" src="${A(n)}" alt="" width="${w}" height="${h}">`;
 
 /** Mounts the prototype into `root` (page) and `layer` (overlays on <body>). Returns a cleanup function. */
 export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => void {
@@ -148,7 +170,9 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   const view = (id: string | null) => S.views.find((v) => v.id === id);
   const base = () => view(S.active)?.q || BLANK;
   const isDirty = () => !eq(S.q, base());
-  const fCount = () => (S.q.brand ? 1 : 0) + CATS.reduce((n, c) => n + (S.q.f[c.k]?.length || 0), 0);
+  const catCount = () => (S.q.brand ? 1 : 0) + CATS.reduce((n, c) => n + (S.q.f[c.k]?.length || 0), 0);
+  // The Filter badge also counts the date range, as in production.
+  const fCount = () => catCount() + (S.q.date ? 1 : 0);
   const summary = (q: Query) => {
     const out: string[] = [];
     if (q.search.trim()) out.push(`“${q.search.trim()}”`);
@@ -162,7 +186,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   };
   const suggest = () => summary(S.q).slice(0, 2).join(" · ") || "My view";
   const count = () => {
-    let n = ({ all: 1243, reviewed: 7, labelled: 388 } as Record<string, number>)[S.active] ?? 1243;
+    let n = ({ all: 1243, reviewed: 0, labelled: 388 } as Record<string, number>)[S.active] ?? 1243;
     n *= S.q.status.length ? 0.55 : 1;
     if (S.q.brand) n *= 0.6;
     CATS.forEach((c) => {
@@ -176,9 +200,34 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   const menu = (id: string, html: string, cls = "") => (S.open === id ? `<div class="pop ${cls}" data-pop>${html}</div>` : "");
 
   function tabs() {
-    let h = '<div class="seg" role="tablist" aria-label="Views">';
-    PRESETS.forEach((p) => (h += `<button role="tab" aria-selected="${S.active === p.id}" class="${S.active === p.id ? "on" : ""}" data-act="go" data-id="${p.id}">${I(p.icon)}${p.name}</button>`));
+    let h = '<div class="p-tabs" role="tablist" aria-label="Views">';
+    PRESETS.forEach((p) => (h += `<button role="tab" aria-selected="${S.active === p.id}" class="p-tab ${S.active === p.id ? "on" : ""}" data-act="go" data-id="${p.id}"><span class="p-emoji">${p.emoji}</span>${p.name}</button>`));
     return h + "</div>";
+  }
+
+  /* Toolbar button as in production: icon tile, label, chevron, and an optional count badge. */
+  const tbButton = (open: string, icon: string, label: string, badge: number, extra = "") =>
+    `<button class="p-tb ${S.open === open ? "is-on" : ""}" data-open="${open}"><span class="p-tile">${img(icon, 16)}</span><span class="tb-label">${label}</span>${extra}${img("tb-chev.svg", 16)}</button>${badge ? `<span class="p-badge">${badge}</span>` : ""}`;
+
+  const titleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+  const chipText = (vals: string[]) => vals.join(", ") + (vals.length > 1 ? ` (${vals.length})` : "");
+  const chip = (icon: string, label: string, k: string) =>
+    `<span class="p-chip">${icon}<span>${esc(label)}</span><button class="p-chip-x" aria-label="Remove ${esc(label)}" data-act="rmchip" data-k="${k}">${img("chip-x.svg", 16)}</button></span>`;
+
+  /* Applied filters, shown under the search bar as in production */
+  function chips() {
+    const q = S.q, out: string[] = [];
+    if (q.status.length) out.push(chip(img("chip-status.svg", 16), chipText(q.status.map(titleCase)), "status"));
+    if (q.brand) out.push(chip(`<span class="p-chip-i">${I("store")}</span>`, "Brand mentions only", "brand"));
+    CATS.forEach((c) => {
+      const v = q.f[c.k];
+      if (!v?.length) return;
+      const icon = c.k === "platform" ? img("chip-platform.svg", 16) : `<span class="p-chip-i">${I(c.icon)}</span>`;
+      const vals = c.k === "platform" ? v.map((x) => x.charAt(0) + x.slice(1).toLowerCase()) : v;
+      out.push(chip(icon, chipText(vals), c.k));
+    });
+    if (q.date) out.push(chip(img("chip-date.svg", 16), DATE_RANGE, "date"));
+    return out.length ? `<div class="p-chips">${out.join("")}</div>` : "";
   }
 
   /* Filter dropdown, matching production: brand toggle, then accordion categories with count + nested checkboxes */
@@ -199,7 +248,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
     }
     h += `<div class="fmenu-scroll">`;
-    if (fCount()) h += `<div class="fs-head"><span>${fCount()} selected</span><button class="lnk" data-act="clearflt" data-keep="1">Clear all</button></div>`;
+    if (catCount()) h += `<div class="fs-head"><span>${catCount()} selected</span><button class="lnk" data-act="clearflt" data-keep="1">Clear all</button></div>`;
     h += `<button class="fopt top ${S.q.brand ? "on" : ""}" data-act="brand" data-keep="1"><span class="pcb">${I("check")}</span><span class="ftile">${I("store")}</span><span class="fl1">Only show brand mention</span></button><div class="fdiv"></div>`;
     CATS.forEach((c) => {
       const sel = S.q.f[c.k] || [], open = S.exp === c.k;
@@ -211,15 +260,16 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   }
 
   function toolbar() {
-    const v = S.variant, nf = fCount(), dirty = isDirty(), sv = view(S.active);
-    let h = '<div class="row tbrow">';
+    const v = S.variant, dirty = isDirty(), sv = view(S.active);
+    let h = '<div class="p-tbrow">';
     if (v === "B") {
-      h += `<div class="rel"><div class="sbtn"><button ${dirty && !sv ? 'data-act="save-new"' : 'data-open="splitm"'} title="${sv ? esc(sv.name) : dirty ? "Save these filters as a view" : "Saved views"}">${I("bookmark")}<span class="tb-label">${sv ? esc(sv.name) : "Save view"}</span>${sv && dirty ? '<span class="edited">Edited</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${I("chev")}</button></div>${menu("splitm", splitMenu(sv, dirty), "right wide")}</div>`;
+      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button ${dirty && !sv ? 'data-act="save-new"' : 'data-open="splitm"'} title="${sv ? esc(sv.name) : dirty ? "Save these filters as a view" : "Saved views"}"><span class="p-tile">${I("bookmark")}</span><span class="tb-label">${sv ? esc(sv.name) : "Save view"}</span>${sv && dirty ? '<span class="edited">Edited</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv, dirty), "right wide")}</div>`;
     }
-    h += `<div class="rel tb"><button class="btn-soft sm trail tbb" data-open="status"><span class="tbi">${I("status")}</span>Status${I("chev")}</button>${S.q.status.length ? `<span class="badge">${S.q.status.length}</span>` : ""}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
-    const flabel = v === "A" && sv ? esc(sv.name) + (dirty ? ' <span class="fn">· Edited</span>' : "") : "Filter";
-    h += `<div class="rel tb"><button class="btn-soft sm trail tbb" data-open="filter"><span class="tbi">${I(v === "A" && sv ? "bookmark" : "sliders")}</span><span class="tb-label">${flabel}</span>${I("chev")}</button>${nf ? `<span class="badge">${nf}</span>` : ""}${menu("filter", filterMenu(), "right fmenu")}</div>`;
-    h += `<div class="rel tb"><button class="btn-soft sm trail tbb" data-open="sort"><span class="tbi">${I("sort")}</span>Sort by${I("chev")}</button>${menu("sort", `<div class="pg"><div class="ph">Sort by</div>${SORTS.map((x) => `<button class="pr ${S.q.sort === x ? "on" : ""}" data-act="sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${S.q.sort === x ? tick() : ""}</button>`).join("")}</div>`, "right")}</div>`;
+    h += `<div class="rel tb">${tbButton("status", "tb-status.svg", "Status", S.q.status.length)}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
+    const inView = v === "A" && sv;
+    const flabel = inView ? esc(sv.name) : "Filter";
+    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="edited">Edited</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
+    h += `<div class="rel tb">${tbButton("sort", "tb-sort.svg", "Sort by", 0)}${menu("sort", `<div class="pg"><div class="ph">Sort by</div>${SORTS.map((x) => `<button class="pr ${S.q.sort === x ? "on" : ""}" data-act="sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${S.q.sort === x ? tick() : ""}</button>`).join("")}</div>`, "right")}</div>`;
     return h + "</div>";
   }
 
@@ -274,9 +324,30 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     el.style.top = top + "px";
   }
 
+  const avatar = (x: Avatar) =>
+    typeof x === "string" ? `<span class="p-av">${img(x, 14, 14, "")}</span>` : `<span class="p-av" style="background:${x[1]}">${x[0]}</span>`;
+  const statIcons = ["st-plays.svg", "st-likes.svg", "st-comments.svg"];
+
+  function card(c: Card) {
+    const tags = (c.tags || []).map((t) => (t === "positive" ? '<span class="p-tag pos">☺️ Positive</span>' : '<span class="p-tag men">💬 2 mentions</span>')).join("");
+    const corner = c.video
+      ? `<span class="p-corner">${["ic-link.svg", "ic-open.svg"].map((n) => `<span class="p-glass">${img(n, 12)}</span>`).join("")}</span>`
+      : c.icons ? `<span class="p-corner">${c.icons.map((n) => img(n, 17)).join("")}</span>` : "";
+    const foot = c.video
+      ? `<span class="p-ai-btn"><span class="p-mask" style="--m:url('${A("c2-ai-mask.svg")}')">${img("c2-ai.svg", 14, 14, "")}</span></span>
+        <div class="p-vc"><span class="p-vc-bar"><i></i></span><span class="p-vc-g">${img("vc-pause.svg", 16)}${img("vc-back.svg", 16)}${img("vc-fwd.svg", 16)}</span><span class="p-vc-t">00:00 / 01:11</span><span class="p-vc-g">${img("vc-mute.svg", 16)}<span class="p-vc-rate">1x${img("vc-caret.svg", 10)}</span>${img("vc-full.svg", 16)}</span></div>`
+      : `<div class="p-foot"><span class="p-who"><span class="p-avs">${(c.people || []).map(avatar).join("")}</span><b>${esc(c.who)}</b></span><span class="p-reach">•${img("ic-reach.svg", 12)}${esc(c.reach)}</span><span class="p-date">Nov 12 2026</span></div>`;
+    const stats = c.st.map((v, i) => `<span>${img(i < 3 ? statIcons[i] : c.eng === "eye" ? "st-eng.svg" : "st-eng-person.svg", 16)}${v}</span>`).join("");
+    return `<article class="p-card"><h3>${esc(c.t)}</h3><p>${esc(c.p)}</p>
+      <div class="p-media ${c.carousel ? "carousel" : ""}" style="height:${c.h}px"><img class="p-media-img" src="${A(c.media)}" alt="" loading="lazy">${tags ? `<span class="p-tags">${tags}</span>` : ""}${corner}${foot}</div>
+      <div class="p-stats">${stats}</div>
+      <div class="p-status">Not started${img("status-chev.svg", 16)}</div></article>`;
+  }
+
   function cards() {
     const n = count();
-    return `<div class="rhead"><span>Showing <b>${n.toLocaleString()}</b> posts</span><span>${S.q.sort}</span></div><div class="cards">${CARDS.slice(0, Math.min(4, n)).map((c) => `<article class="card"><h4>${c.t}</h4><p>${c.p}</p><div class="thumb" style="--c1:${c.c1};--c2:${c.c2}"><div class="tags"><span class="chip ${c.s === "Positive" ? "g" : "r"}">${I("smile", 12)}${c.s}</span>${c.m ? `<span class="chip t">${I("msg", 12)}${c.m} mentions</span>` : ""}</div><div class="who"><span>${c.who}</span><span>Nov 09</span></div></div><div class="stats">${c.st.map((x) => `<span>${x}</span>`).join("")}</div><span class="status">${S.q.status[0] || "Not started"}</span></article>`).join("")}</div>`;
+    if (!n) return `<div class="p-empty">No posts here yet. Posts you mark as reviewed show up in this tab.</div>`;
+    return `<div class="p-cards">${CARDS.slice(0, Math.min(CARDS.length, n)).map(card).join("")}</div>`;
   }
 
   function modal() {
@@ -307,7 +378,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   }
 
   function render() {
-    const v = S.variant, V = VARIANTS[v];
+    const v = S.variant;
     const sc = $(".fmenu-scroll")?.scrollTop;
     // overlays sit outside the stage, so mirror the dock's font choice onto them
     layer.style.fontFamily = getComputedStyle(root).fontFamily;
@@ -315,13 +386,13 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       b.classList.toggle("on", b.dataset.v === v);
       b.setAttribute("aria-pressed", String(b.dataset.v === v));
     });
-    $(".sv-notes")!.innerHTML = `<div><div class="k">Variant ${v} · ${V.name}</div><div class="v">${V.save}</div></div><div><div class="k">Where views live</div><div class="v">${V.views}</div></div><div><div class="k">Editing a saved view</div><div class="v">${V.edit}</div></div><div><div class="k">Pattern source · Mobbin</div><div class="v">${V.refs.map((r) => `<a href="${r[1]}" target="_blank" rel="noopener">${r[0]}</a>`).join(", ")}<span class="pro">${V.tradeoff}</span></div></div>`;
     $(".pbody")!.innerHTML = `
-    <div class="row between"><div class="row">${tabs()}</div>${toolbar()}</div>
-    <div class="topic"><h3>Airbnb’s Brand Mention ${I("chev")}</h3><div class="meta"><span class="beta">Beta</span><span>${I("refresh")}Smart assignment <small>Off</small></span></div></div>
-    <div class="untag"><span>${I("spark", 14).replace("<svg", '<svg style="display:inline;vertical-align:-2px;color:var(--maroon-900)"')} <b>144 of 1.2K brand mentions were untagged</b> · Plot captured 12% you’d otherwise miss</span><span class="pct">12%</span></div>
-    <div class="searchrow"><label class="inp" for="q">${I("search")}<input id="q" placeholder="Search keywords like “sneakers”, “#haul”, or “10k views”" value="${esc(S.q.search)}" autocomplete="off"><button class="go" aria-label="Search" data-act="search">${I("up")}</button></label>
-      <div class="rest"><div class="seg"><button class="${S.q.mode === "regular" ? "on" : ""}" data-act="mode" data-v="regular">Regular search</button><button class="${S.q.mode === "smart" ? "on" : ""}" data-act="mode" data-v="smart">Smart search</button></div><button class="btn-soft">${I("plus")}Add post</button><button class="btn-soft">${I("export")}Export</button></div></div>
+    <div class="p-row">${tabs()}${toolbar()}</div>
+    <div class="p-topic"><button class="p-topic-t">Airbnb's Brand Mention${img("topic-chev.svg", 24)}</button><div class="p-topic-m"><span class="p-beta">Beta</span><span class="p-smart">${img("topic-smart.svg", 18)}Smart assignment <small>Off</small></span></div></div>
+    <div class="p-untag"><span class="p-untag-l"><span class="p-spark"><span class="p-mask" style="--m:url('${A("spark-mask.svg")}')">${img("spark.svg", 16, 16, "")}</span></span><span class="p-untag-h"><b>140</b> of 1.04K brand mentions were untagged</span><span>- Plot captured 13% you'd otherwise miss</span></span><b class="p-untag-r">13%</b></div>
+    <div class="p-search"><label class="p-inp" for="q">${img("search.svg", 22, 24)}<input id="q" placeholder="Search keywords like &quot;sneakers&quot;, &quot;#haul&quot;, or &quot;10k views&quot;" value="${esc(S.q.search)}" autocomplete="off"><button class="p-go" aria-label="Search" data-act="search">${img("search-go.svg", 36)}</button></label>
+      <div class="p-search-r"><div class="p-mode"><button class="${S.q.mode === "regular" ? "on" : ""}" data-act="mode" data-v="regular">Regular search</button><button class="${S.q.mode === "smart" ? "on" : ""}" data-act="mode" data-v="smart">Smart search</button></div><button class="p-btn"><span class="p-tile">${img("plus.svg", 16)}</span>Add post</button><button class="p-btn"><span class="p-tile">${img("export.svg", 16)}</span>Export</button></div></div>
+    ${chips()}
     ${cards()}`;
     layer.querySelector(".sv-modal")!.innerHTML = modal();
     layer.querySelector(".sv-toast")!.innerHTML = S.toast ? `<div class="toast" role="status">${I("check")}<span>${esc(S.toast.msg)}</span>${S.toast.undo ? '<button data-act="undo">Undo</button>' : ""}</div>` : "";
@@ -372,6 +443,12 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         break;
       }
       case "clearflt": S.q.brand = false; S.q.f = {}; break;
+      case "rmchip":
+        if (d.k === "status") S.q.status = [];
+        else if (d.k === "brand") S.q.brand = false;
+        else if (d.k === "date") S.q.date = false;
+        else delete S.q.f[d.k!];
+        break;
       case "reset": S.sub = null; S.q = clone(base()); if (!keep) S.open = null; break;
       case "sort": S.q.sort = d.v!; S.open = null; break;
       case "mode": S.q.mode = d.v as Query["mode"]; break;
