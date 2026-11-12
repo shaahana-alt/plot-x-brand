@@ -3,6 +3,7 @@ import { fontById, fonts, pageById, pages, type FontId, type PageId } from "./fo
 import { Chat } from "./pages/Chat";
 import { Newsfeed } from "./pages/Newsfeed";
 import { Outbound } from "./pages/Outbound";
+import { SavedViews } from "./pages/saved-views/SavedViews";
 
 type Palette = "original" | "new";
 
@@ -65,6 +66,7 @@ export default function App() {
         {page === "outbound" ? <Outbound /> : null}
         {page === "chat" ? <Chat /> : null}
         {page === "newsfeed" ? <Newsfeed /> : null}
+        {page === "saved-views" ? <SavedViews /> : null}
       </div>
       <footer className="dock">
         <div className="dock-pages" role="tablist" aria-label="Page">
