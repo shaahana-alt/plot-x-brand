@@ -361,7 +361,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     if (!m) return "";
     if (m.type === "rename")
       return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="rename" novalidate>
-    <div class="hd"><h3 id="dlgT">Rename view</h3><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
+    <div class="hd"><h2 id="dlgT">Rename view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     ${nameField(m.err ? "" : view(m.id)!.name, m.err)}
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
     // Label chips from the design system. Hovering a chip shows × to leave that filter out of the view.
@@ -377,7 +377,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     if (q.date) items.push(chipFor("calendar", "Date", DATE_RANGE, "date"));
     items.push(chipFor("sort", "Sort", q.sort));
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
-    <div class="hd"><h3 id="dlgT">Save view</h3><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
+    <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     <div class="lchips">${items.join("")}</div>
     ${nameField(m.name, m.err)}
     <div class="fld"><span class="flabel" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>

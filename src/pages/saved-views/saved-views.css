@@ -377,7 +377,10 @@
 /* ---------- Save view / Rename dialog, built from the Plot design system ---------- */
 .sv .dlg{font-family:"ABC Diatype","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;gap:18px;--danger:#C93B3B;--danger-text:#A33030}
 .sv .dlg .hd{align-items:center}
-.sv .dlg h3{font-size:18px;font-weight:600;color:var(--ink);margin:0}
+/* Type follows the design system scale: dialog title = h2 (MF Ionica 28/400/1.1), label = Small body Medium, helper = Meta */
+.sv .dlg h2{font-family:"MF Ionica",Georgia,serif;font-size:28px;font-weight:400;line-height:1.1;color:var(--ink);margin:0}
+.sv .dlg .inp,.sv .dlg .fld>label,.sv .dlg .flabel{line-height:1.45}
+.sv .dlg .help{line-height:1.35}
 .sv .dlg .fld{display:flex;flex-direction:column;gap:6px}
 .sv .dlg .fld>label,.sv .dlg .flabel{font-size:14px;font-weight:500;color:var(--ink)}
 .sv .dlg .help{font-size:12px;color:var(--gray-700)}
