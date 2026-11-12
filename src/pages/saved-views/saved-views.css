@@ -490,3 +490,14 @@
 .sv .pop.sub .sx{opacity:0}
 .sv .pop.sub .srow:hover .sx,.sv .pop.sub .sx:focus-visible{opacity:1}
 .sv .pop.wide{width:340px}
+
+/* Size the Saved Views menu and the view flyout to their content, with 14px between the left and right columns */
+.sv .pop.wide{width:max-content;min-width:240px;max-width:320px}
+.sv .vrow .vvis{padding-left:14px}
+.sv .vline .vrow{gap:8px}
+.sv .pop.sub{width:max-content;min-width:240px;max-width:340px}
+.sv .pop.sub .slist{display:grid;grid-template-columns:26px max-content minmax(0,1fr) 36px;column-gap:0}
+.sv .pop.sub .srow{grid-column:1/-1;grid-template-columns:subgrid;column-gap:0}
+.sv .pop.sub .srow>svg{margin:0}
+.sv .pop.sub .sk{padding-right:14px}
+.sv .pop.sub .sx{margin-left:8px}
