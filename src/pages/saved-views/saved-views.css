@@ -443,3 +443,7 @@
 /* Dividers only between rows, none above the first or below the last */
 .sv .dlg .slist{border-top:0}
 .sv .dlg .srow:last-child{border-bottom:0}
+/* Saved views are single-select: the open view gets a tick and medium weight, no checkboxes */
+.sv .vrow{padding-left:10px}
+.sv .vrow.on{font-weight:500}
+.sv .vrow .tick{width:15px;height:15px;color:var(--ink);flex:none}
