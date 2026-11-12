@@ -21,8 +21,8 @@ type SavedView = { id: string; name: string; vis: Vis; q: Query };
 type VariantId = "A" | "B";
 type Snapshot = { views: SavedView[]; active: string; q: Query };
 type Modal =
-  | { type: "rename"; id: string; focused?: boolean }
-  | { type: "save"; name: string; vis: Vis; focused?: boolean };
+  | { type: "rename"; id: string; focused?: boolean; err?: boolean }
+  | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean };
 type State = {
   variant: VariantId;
   views: SavedView[];
@@ -55,6 +55,8 @@ const P: Record<string, string> = {
   user: '<circle cx="12" cy="8.5" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/>', idcard: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16a3 3 0 0 1 6 0M14 10h4M14 13.5h4"/>',
   bolt: '<path d="M13 3.5L6 13.5h5.5L10.5 20.5 18 10.5h-5.5z"/>', labels: '<path d="M8 4.5h9a1 1 0 0 1 1 1V19l-5-3.2L8 19z"/><path d="M5.5 7.5V19"/>',
   target: '<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>', dollar: '<circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2c-.4-1-1.5-1.7-2.8-1.7-1.6 0-2.8.9-2.8 2.2 0 3 5.7 1.6 5.7 4.6 0 1.3-1.3 2.2-2.9 2.2-1.4 0-2.5-.7-2.9-1.8M12 6v1.5M12 16.5V18"/>',
+  calendar: '<rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  alert: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5"/><circle cx="12" cy="16" r=".6" fill="currentColor"/>',
   play: '<path d="M7 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.7L8.5 4.6A1 1 0 0 0 7 5.5z"/>',
 };
 export const I = (k: string, w?: number) =>
@@ -349,30 +351,37 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     return `<div class="p-cards">${CARDS.slice(0, Math.min(CARDS.length, n)).map(card).join("")}</div>`;
   }
 
+  /* Text field from the Plot design system: 38px, radius 9, clear × when filled, error line below. */
+  const nameField = (value: string, err?: boolean) => `<div class="fld"><label for="vname">Name</label>
+    <div class="inp ${err ? "err" : ""}"><input id="vname" maxlength="48" value="${esc(value)}" placeholder="Add a name" autocomplete="off" aria-invalid="${!!err}" ${err ? 'aria-describedby="vname-err"' : ""}><button type="button" class="clr" aria-label="Clear name" data-act="clr-name" ${value ? "" : "hidden"}>${I("close")}</button></div>
+    ${err ? `<span class="inl st-danger" id="vname-err">${I("alert")}Add a name for this view.</span>` : ""}</div>`;
+
   function modal() {
     const m = S.modal;
     if (!m) return "";
     if (m.type === "rename")
-      return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="rename">
-    <div class="hd"><div><h3 id="dlgT">Rename view</h3></div><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
-    <div class="fld"><label class="fl" for="vname">Name</label><input id="vname" class="inpx" maxlength="48" value="${esc(view(m.id)!.name)}" autocomplete="off"></div>
+      return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="rename" novalidate>
+    <div class="hd"><h3 id="dlgT">Rename view</h3><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
+    ${nameField(m.err ? "" : view(m.id)!.name, m.err)}
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
-    const q = S.q, row = (ic: string, k: string, v: string) => `<span class="lchip">${I(ic)}<span><em>${k}</em> ${esc(v)}</span></span>`;
-    const items = [row("spark", "Topic", "Airbnb’s Brand Mention")];
-    if (q.search.trim()) items.push(row("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`));
-    if (q.status.length) items.push(row("status", "Status", q.status.join(", ")));
-    if (q.brand) items.push(row("store", "Only", "brand mentions"));
+    // Label chips from the design system. Hovering a chip shows × to leave that filter out of the view.
+    const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) =>
+      `<span class="lchip ${key ? "" : "ro"}">${I(ic)}<span><em>${k}</em> ${esc(v)}</span>${key ? `<button type="button" class="lx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}">${I("close")}</button>` : ""}</span>`;
+    const items = [chipFor("spark", "Topic", "Airbnb’s Brand Mention")];
+    if (q.search.trim()) items.push(chipFor("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
+    if (q.status.length) items.push(chipFor("status", "Status", q.status.join(", "), "status"));
+    if (q.brand) items.push(chipFor("store", "Only", "brand mentions", "brand"));
     CATS.forEach((c) => {
-      if (q.f[c.k]?.length) items.push(row(c.icon, c.label, q.f[c.k].join(", ")));
+      if (q.f[c.k]?.length) items.push(chipFor(c.icon, c.label, q.f[c.k].join(", "), c.k));
     });
-    items.push(row("sort", "Sort", q.sort));
-    const where = { A: "the Filter menu", B: "Saved views" }[S.variant];
-    return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save">
-    <div class="hd"><div><h3 id="dlgT">Save view</h3><p class="sub">Open these posts again in one click from ${where}.</p></div><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
-    <div class="sum"><div class="lbl">What’s saved</div><div class="list">${items.join("")}</div></div>
-    <div class="fld"><label class="fl" for="vname">Name</label><input id="vname" class="inpx" maxlength="48" value="${esc(m.name)}" autocomplete="off"></div>
-    <div class="fld"><span class="fl" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL" style="justify-self:start"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>
-    <p class="hint">${m.vis === "me" ? "Only you will see this view." : "Everyone with access to this brand sees it."}</p></div>
+    if (q.date) items.push(chipFor("calendar", "Date", DATE_RANGE, "date"));
+    items.push(chipFor("sort", "Sort", q.sort));
+    return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
+    <div class="hd"><h3 id="dlgT">Save view</h3><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
+    <div class="lchips">${items.join("")}</div>
+    ${nameField(m.name, m.err)}
+    <div class="fld"><span class="flabel" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>
+    <span class="help">${m.vis === "me" ? "Only you will see this view." : "Everyone with access to this brand sees it."}</span></div>
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save view</button></div></form></div>`;
   }
 
@@ -452,7 +461,25 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       case "sort": S.q.sort = d.v!; S.open = null; break;
       case "mode": S.q.mode = d.v as Query["mode"]; break;
       case "search": S.q.search = $<HTMLInputElement>("#q")!.value; break;
-      case "save-new": S.open = null; S.modal = { type: "save", name: suggest(), vis: "me" }; break;
+      case "save-new": S.open = null; S.modal = { type: "save", name: suggest(), vis: "me", q: clone(S.q) }; break;
+      case "rmsum": {
+        if (S.modal?.type !== "save") break;
+        const n = $<HTMLInputElement>("#vname")?.value;
+        if (n != null) S.modal.name = n;
+        const q = S.modal.q;
+        if (d.k === "search") q.search = "";
+        else if (d.k === "status") q.status = [];
+        else if (d.k === "brand") q.brand = false;
+        else if (d.k === "date") q.date = false;
+        else delete q.f[d.k!];
+        S.modal.focused = true;
+        break;
+      }
+      case "clr-name": {
+        const i = $<HTMLInputElement>("#vname");
+        if (i) { i.value = ""; i.focus(); syncClear(i); }
+        return;
+      }
       case "vis-pick": {
         if (S.modal?.type !== "save") break;
         const n = $<HTMLInputElement>("#vname")?.value;
@@ -505,12 +532,41 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     render();
   }
 
+  /* Show the clear × only when the field has text; typing also clears an error. */
+  function syncClear(i: HTMLInputElement) {
+    i.parentElement?.querySelector<HTMLElement>(".clr")?.toggleAttribute("hidden", !i.value);
+    if (i.value && S.modal?.err) {
+      S.modal.err = false;
+      i.parentElement?.classList.remove("err");
+      i.removeAttribute("aria-describedby");
+      i.setAttribute("aria-invalid", "false");
+      i.closest(".fld")?.querySelector(".inl")?.remove();
+    }
+  }
+  const onInput = (e: Event) => {
+    const t = e.target as HTMLInputElement;
+    if (t.id === "vname" && inUI(t)) syncClear(t);
+  };
+  // Design system rule: the blue focus ring shows only when focus arrives from the keyboard.
+  let keyboard = false;
+  const onKeyMode = (e: KeyboardEvent) => { if (e.key === "Tab") keyboard = true; };
+  const onPointer = () => { keyboard = false; };
+  const onFocusIn = (e: FocusEvent) => {
+    const t = e.target as HTMLElement;
+    if (!inUI(t)) return;
+    t.closest(".inp")?.classList.toggle("kb", keyboard);
+  };
+
   function submit(form: HTMLFormElement) {
     const input = $<HTMLInputElement>("#vname")!;
     const name = input.value.trim();
     if (!name) {
-      input.focus();
-      input.style.boxShadow = "inset 0 0 0 1px #C93B3B";
+      if (S.modal) {
+        if (S.modal.type === "save") S.modal.name = "";
+        S.modal.err = true;
+        render();
+        $<HTMLInputElement>("#vname")?.focus();
+      }
       return;
     }
     if (form.dataset.form === "rename" && S.modal?.type === "rename") {
@@ -519,6 +575,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       toast(`Renamed to “${name}”`);
     } else if (S.modal?.type === "save") {
       const snap = snapshot(), id = "v" + Date.now();
+      S.q = clone(S.modal.q);
       S.views.push({ id, name, vis: S.modal.vis, q: clone(S.q) });
       S.active = id;
       S.newId = id;
@@ -617,6 +674,10 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   document.addEventListener("submit", onSubmit);
   document.addEventListener("keydown", onKey);
   document.addEventListener("mouseover", onOver);
+  document.addEventListener("input", onInput);
+  document.addEventListener("keydown", onKeyMode, true);
+  document.addEventListener("pointerdown", onPointer, true);
+  document.addEventListener("focusin", onFocusIn);
   render();
 
   return () => {
@@ -624,6 +685,10 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     document.removeEventListener("submit", onSubmit);
     document.removeEventListener("keydown", onKey);
     document.removeEventListener("mouseover", onOver);
+    document.removeEventListener("input", onInput);
+    document.removeEventListener("keydown", onKeyMode, true);
+    document.removeEventListener("pointerdown", onPointer, true);
+    document.removeEventListener("focusin", onFocusIn);
     clearTimeout(tt);
     clearTimeout(subT);
   };

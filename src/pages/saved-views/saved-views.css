@@ -373,3 +373,37 @@
   .sv .p-proto{margin:0 16px 16px;align-self:stretch;flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){.sv *,.sv *::before,.sv *::after{animation:none!important;transition:none!important}}
+
+/* ---------- Save view / Rename dialog, built from the Plot design system ---------- */
+.sv .dlg{font-family:"ABC Diatype","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;gap:18px;--danger:#C93B3B;--danger-text:#A33030}
+.sv .dlg .hd{align-items:center}
+.sv .dlg h3{font-size:18px;font-weight:600;color:var(--ink);margin:0}
+.sv .dlg .fld{display:flex;flex-direction:column;gap:6px}
+.sv .dlg .fld>label,.sv .dlg .flabel{font-size:14px;font-weight:500;color:var(--ink)}
+.sv .dlg .help{font-size:12px;color:var(--gray-700)}
+.sv .dlg .inp{display:flex;align-items:center;gap:8px;height:38px;padding:0 8px 0 12px;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1px var(--gray-200);font-size:14px;color:var(--text);transition:box-shadow .12s}
+.sv .dlg .inp:hover{box-shadow:inset 0 0 0 1px var(--gray-300)}
+.sv .dlg .inp:focus-within{box-shadow:inset 0 0 0 1px var(--ink)}
+.sv .dlg .inp.kb:focus-within{box-shadow:inset 0 0 0 1px var(--ink),0 0 0 2px #fff,0 0 0 4px var(--focus-ring)}
+.sv .dlg .inp.err,.sv .dlg .inp.err:focus-within{box-shadow:inset 0 0 0 1px var(--danger)}
+.sv .dlg .inp input{flex:1;min-width:0;height:100%;border:0;padding:0;background:none;outline:none;font:inherit;color:inherit}
+.sv .dlg .inp input::placeholder{color:var(--gray-500)}
+.sv .dlg .inp .clr{display:grid;place-items:center;width:18px;height:18px;border-radius:5px;color:var(--gray-500)}
+.sv .dlg .inp .clr:hover{color:var(--ink);background:var(--gray-100)}
+.sv .dlg .inp .clr svg{width:12px;height:12px}
+.sv .dlg .inl{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--danger-text)}
+.sv .dlg .inl svg{width:14px;height:14px;color:var(--danger)}
+.sv .dlg .lchips{display:flex;flex-wrap:wrap;gap:6px}
+.sv .dlg .lchip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 6px;border-radius:7px;font-size:12px;font-weight:500;background:color-mix(in oklch,var(--gray-50),var(--gray-100));color:var(--gray-700);max-width:100%;white-space:nowrap;box-shadow:none}
+.sv .dlg .lchip>svg{width:11px;height:11px;flex:none;color:var(--gray-700);opacity:.9}
+.sv .dlg .lchip>span{overflow:hidden;text-overflow:ellipsis}
+.sv .dlg .lchip em{font-style:normal;color:var(--gray-500)}
+.sv .dlg .lchip .lx{width:0;height:16px;margin:0 -4px 0 0;border-radius:5px;display:grid;place-items:center;color:inherit;opacity:0;overflow:hidden;transition:width .12s,opacity .12s,margin .12s}
+.sv .dlg .lchip:hover .lx,.sv .dlg .lchip .lx:focus-visible{width:16px;margin:0 -4px 0 1px;opacity:.65}
+.sv .dlg .lchip .lx:hover{opacity:1;background:var(--gray-200)}
+.sv .dlg .lchip .lx svg{width:9px;height:9px}
+@media (hover:none){.sv .dlg .lchip .lx{width:16px;margin:0 -4px 0 1px;opacity:.65}}
+.sv .dlg .seg{align-self:flex-start;border-radius:12px}
+.sv .dlg .seg button{gap:6px;padding:0 12px}
+.sv .dlg .btn-dark{gap:8px}
+.sv .dlg .inp .clr[hidden]{display:none}
