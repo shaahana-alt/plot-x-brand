@@ -278,8 +278,8 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   function splitMenu(sv: SavedView | undefined) {
     const dirty = isDirty();
     const list = `<div class="pg">${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" aria-current="${S.active === v.id}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pl"><span>${esc(v.name)}</span><small>${v.vis === "me" ? "Only me" : "Team"}</small></span>${S.active === v.id && dirty ? '<span class="edited">Not saved</span>' : ""}${S.active === v.id ? tick() : ""}</button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
-    // Actions sit below a divider at the bottom, like "New label" in the Labels menu.
-    const foot = `<div class="pg pfoot"><button class="pr" data-act="save-new">${I("plus")}<span class="pl"><span>New view</span></span></button>${sv ? `<button class="pr" data-act="go" data-id="all">${I("close")}<span class="pl"><span>Exit view</span></span></button>` : ""}</div>`;
+    // Actions sit below a divider at the bottom, like "New label" in the Labels menu; reads "Save current view".
+    const foot = `<div class="pg pfoot"><button class="pr" data-act="save-new">${I("plus")}<span class="pl"><span>Save current view</span></span></button>${sv ? `<button class="pr" data-act="go" data-id="all">${I("close")}<span class="pl"><span>Exit view</span></span></button>` : ""}</div>`;
     return list + foot;
   }
 
