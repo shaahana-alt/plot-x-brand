@@ -364,9 +364,9 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     <div class="hd"><h2 id="dlgT">Rename view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     ${nameField(m.err ? "" : view(m.id)!.name, m.err)}
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
-    // Label chips from the design system. Hovering a chip shows × to leave that filter out of the view.
+    // What gets saved, stacked as plain rows in Small body. Hovering a row shows × to leave that filter out of the view.
     const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) =>
-      `<span class="lchip ${key ? "" : "ro"}">${I(ic)}<span><em>${k}</em> ${esc(v)}</span>${key ? `<button type="button" class="lx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}">${I("close")}</button>` : ""}</span>`;
+      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}">${I("close")}</button>` : ""}</li>`;
     const items = [chipFor("spark", "Topic", "Airbnb’s Brand Mention")];
     if (q.search.trim()) items.push(chipFor("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
     if (q.status.length) items.push(chipFor("status", "Status", q.status.join(", "), "status"));
@@ -378,7 +378,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     items.push(chipFor("sort", "Sort", q.sort));
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
     <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
-    <div class="lchips">${items.join("")}</div>
+    <ul class="slist" aria-label="Saved with this view">${items.join("")}</ul>
     ${nameField(m.name, m.err)}
     <div class="fld"><span class="flabel" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>
     <span class="help">${m.vis === "me" ? "Only you will see this view." : "Everyone with access to this brand sees it."}</span></div>

@@ -410,3 +410,16 @@
 .sv .dlg .seg button{gap:6px;padding:0 12px}
 .sv .dlg .btn-dark{gap:8px}
 .sv .dlg .inp .clr[hidden]{display:none}
+
+/* Saved filters, stacked as plain text rows (Small body; key in gray-700, value in Small body Medium) */
+.sv .dlg .slist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.sv .dlg .srow{display:grid;grid-template-columns:16px 92px minmax(0,1fr) 24px;align-items:center;column-gap:10px;min-height:34px;padding:5px 6px 5px 8px;border-radius:9px;font-size:14px;line-height:1.45}
+.sv .dlg .srow:hover{background:var(--gray-50)}
+.sv .dlg .srow>svg{width:16px;height:16px;color:var(--gray-600)}
+.sv .dlg .sk{color:var(--gray-700)}
+.sv .dlg .sv-v{color:var(--ink);font-weight:500;min-width:0;overflow-wrap:anywhere}
+.sv .dlg .sx{grid-column:4;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--gray-600);opacity:0;transition:opacity .12s,background .12s}
+.sv .dlg .srow:hover .sx,.sv .dlg .sx:focus-visible{opacity:1}
+.sv .dlg .sx:hover{background:var(--gray-200);color:var(--ink)}
+.sv .dlg .sx svg{width:12px;height:12px}
+@media (hover:none){.sv .dlg .sx{opacity:1}}
