@@ -248,7 +248,6 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
     }
     h += `<div class="fmenu-scroll">`;
-    if (catCount()) h += `<div class="fs-head"><span>${catCount()} selected</span><button class="lnk" data-act="clearflt" data-keep="1">Clear all</button></div>`;
     h += `<button class="fopt top ${S.q.brand ? "on" : ""}" data-act="brand" data-keep="1"><span class="pcb">${I("check")}</span><span class="ftile">${I("store")}</span><span class="fl1">Only show brand mention</span></button><div class="fdiv"></div>`;
     CATS.forEach((c) => {
       const sel = S.q.f[c.k] || [], open = S.exp === c.k;
