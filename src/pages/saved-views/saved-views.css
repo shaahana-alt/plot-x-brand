@@ -506,3 +506,16 @@
 /* "Update view" action on the toolbar button when the open view has unsaved changes */
 .sv .p-upd{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:var(--ink);color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;transition:background .15s}
 .sv .p-upd:hover{background:var(--ink-hover)}
+/* Dialog rows line up with the dialog's left edge (title, Name label, field) */
+.sv .dlg.dlg.dlg .srow{padding-left:0;padding-right:0}
+.sv .dlg.dlg.dlg .sx{position:relative;left:6.5px}
+
+/* Bring the Save view dialog in line with the dropdowns: same row spacing, icons, weights and font */
+.sv .dlg h2{font-family:var(--p-ui);font-size:20px;font-weight:600;line-height:1.2;letter-spacing:0}
+.sv .dlg.dlg.dlg .slist{display:grid;grid-template-columns:26px max-content minmax(0,1fr) 28px;column-gap:0}
+.sv .dlg.dlg.dlg .srow{grid-column:1/-1;grid-template-columns:subgrid;column-gap:0;font-size:14px;min-height:40px}
+.sv .dlg .sk{padding-right:14px}
+.sv .dlg .fld>label,.sv .dlg .flabel{font-size:13.5px;font-weight:500}
+.sv .dlg .dacts .btn-dark,.sv .dlg .dacts .btn-soft{font-weight:600;font-size:14px;height:38px;padding:0 16px}
+.sv :is(.dlg,.pop.sub) .sk{color:var(--gray-600)}
+.sv :is(.dlg,.pop.sub) .srow>svg{color:var(--gray-500)}
