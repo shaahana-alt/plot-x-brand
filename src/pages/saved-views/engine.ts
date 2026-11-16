@@ -367,27 +367,27 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   const editable = (k: string) => k === "status" || k === "sort" || CATS.some((c) => c.k === k);
   function filterPanel(m: Extract<Modal, { type: "save" }>) {
     const q = m.q;
-    if (m.edit) {
-      const k = m.edit, cat = CATS.find((c) => c.k === k);
-      const label = k === "status" ? "Status" : k === "sort" ? "Sort" : cat!.label;
-      const opts = k === "sort"
-        ? SORTS.map((x) => `<button type="button" class="dopt ${q.sort === x ? "on" : ""}" role="radio" aria-checked="${q.sort === x}" data-act="dp-sort" data-v="${x}"><span class="drad"></span>${x}</button>`)
-        : (k === "status" ? STATUSES : cat!.values).map((x) => {
-            const on = k === "status" ? q.status.includes(x) : (q.f[k] || []).includes(x);
-            return `<button type="button" class="dopt ${on ? "on" : ""}" role="checkbox" aria-checked="${on}" data-act="dp-tog" data-k="${k}" data-v="${esc(x)}"><span class="pcb">${I("check")}</span>${esc(x)}</button>`;
-          });
-      return `<div class="dpanel"><div class="dp-h"><span>${label}</span><button type="button" class="dp-done" data-act="dp-done">Done</button></div><div class="dp-opts">${opts.join("")}</div></div>`;
-    }
+    let menu = "";
     if (m.adding) {
-      const avail: [string, string, string][] = [];
-      if (!q.status.length) avail.push(["status", "Status", "status"]);
-      if (!q.brand) avail.push(["brand", "Brand mentions only", "store"]);
-      CATS.forEach((c) => { if (!q.f[c.k]?.length) avail.push([c.k, c.label, c.icon]); });
-      if (!q.date) avail.push(["date", "Date", "calendar"]);
-      if (m.noSort) avail.push(["sort", "Sort", "sort"]);
-      return `<div class="dpanel"><div class="dp-h"><span>Add a filter</span><button type="button" class="dp-done" data-act="dp-close">Cancel</button></div><div class="dp-cats">${avail.map(([k, l, ic]) => `<button type="button" class="dcat" data-act="dp-pick" data-k="${k}">${I(ic)}${l}</button>`).join("")}</div></div>`;
+      // One menu, same structure as the production Filter dropdown: categories expand in place.
+      const row = (k: string, label: string, icon: string, count: number) => {
+        const open = m.edit === k;
+        return `<button type="button" class="frow" data-act="dp-exp" data-k="${k}" aria-expanded="${open}"><span class="ftile">${I(icon)}</span><span class="fl1">${label}</span>${count ? `<span class="fcount">${count}</span>` : ""}<span class="chv">${I(open ? "chev" : "chevr")}</span></button>`;
+      };
+      const opt = (k: string, v: string, on: boolean) => `<button type="button" class="fopt ${on ? "on" : ""}" role="checkbox" aria-checked="${on}" data-act="dp-tog" data-k="${k}" data-v="${esc(v)}"><span class="pcb">${I("check")}</span><span class="fl1">${esc(v)}</span></button>`;
+      let h = `<button type="button" class="fopt top ${q.brand ? "on" : ""}" data-act="dp-brand"><span class="pcb">${I("check")}</span><span class="ftile">${I("store")}</span><span class="fl1">Only show brand mention</span></button><div class="fdiv"></div>`;
+      h += row("status", "Status", "status", q.status.length);
+      if (m.edit === "status") STATUSES.forEach((x) => (h += opt("status", x, q.status.includes(x))));
+      CATS.forEach((c) => {
+        h += row(c.k, c.label, c.icon, q.f[c.k]?.length || 0);
+        if (m.edit === c.k) c.values.forEach((x) => (h += opt(c.k, x, (q.f[c.k] || []).includes(x))));
+      });
+      h += `<button type="button" class="fopt top2 ${q.date ? "on" : ""}" data-act="dp-date"><span class="pcb">${I("check")}</span><span class="ftile">${I("calendar")}</span><span class="fl1">${DATE_RANGE}</span></button>`;
+      h += row("sort", "Sort", "sort", 0);
+      if (m.edit === "sort") SORTS.forEach((x) => (h += `<button type="button" class="pr ${q.sort === x && !m.noSort ? "on" : ""}" data-act="dp-sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${q.sort === x && !m.noSort ? tick() : ""}</button>`));
+      menu = `<div class="pop dmenu" data-dmenu><div class="fmenu-scroll">${h}</div><div class="dm-foot"><button type="button" class="btn-dark xs" data-act="dp-done">Done</button></div></div>`;
     }
-    return `<button type="button" class="dadd" data-act="dp-add">${I("plus")}Add filter</button>`;
+    return `<div class="dadd-wrap"><button type="button" class="dadd" data-act="dp-add" aria-expanded="${!!m.adding}">${I("plus")}Add filter</button>${menu}</div>`;
   }
 
   function modal() {
@@ -549,21 +549,18 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         toast(`Removed ${label} from “${x.name}”`, snap);
         break;
       }
-      case "dp-add": case "dp-close": case "dp-done": case "dp-edit": case "dp-pick": case "dp-tog": case "dp-sort": {
+      case "dp-add": case "dp-done": case "dp-edit": case "dp-exp": case "dp-tog": case "dp-sort": case "dp-brand": case "dp-date": {
         if (S.modal?.type !== "save") break;
         const m = S.modal, q = m.q, n = $<HTMLInputElement>("#vname")?.value;
         if (n != null) m.name = n;
         m.focused = true;
-        if (a === "dp-add") m.adding = true;
-        else if (a === "dp-close") m.adding = false;
-        else if (a === "dp-done") { m.edit = null; m.adding = false; }
-        else if (a === "dp-edit") { m.edit = m.edit === d.k ? null : d.k!; m.adding = false; }
-        else if (a === "dp-pick") {
-          m.adding = false;
-          if (d.k === "brand") q.brand = true;
-          else if (d.k === "date") q.date = true;
-          else { if (d.k === "sort") m.noSort = false; m.edit = d.k!; }
-        } else if (a === "dp-sort") { q.sort = d.v!; m.noSort = false; }
+        if (a === "dp-add") { m.adding = !m.adding; if (!m.adding) m.edit = null; }
+        else if (a === "dp-done") { m.adding = false; m.edit = null; }
+        else if (a === "dp-edit") { m.adding = true; m.edit = d.k!; }
+        else if (a === "dp-exp") m.edit = m.edit === d.k ? null : d.k!;
+        else if (a === "dp-brand") q.brand = !q.brand;
+        else if (a === "dp-date") q.date = !q.date;
+        else if (a === "dp-sort") { q.sort = d.v!; m.noSort = false; }
         else if (a === "dp-tog") {
           const arr = d.k === "status" ? q.status : (q.f[d.k!] = q.f[d.k!] || []);
           const i = arr.indexOf(d.v!);
@@ -716,6 +713,14 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       S.sub = null;
       render();
       return;
+    }
+    if (S.modal?.type === "save" && S.modal.adding && !target.closest("[data-dmenu],[data-act^='dp-']")) {
+      S.modal.adding = false;
+      S.modal.edit = null;
+      const n = $<HTMLInputElement>("#vname")?.value;
+      if (n != null) S.modal.name = n;
+      S.modal.focused = true;
+      render();
     }
     const t = inUI(target) ? target.closest<HTMLElement>("[data-act]") : null;
     if (t) {
