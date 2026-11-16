@@ -265,7 +265,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     const v = S.variant, dirty = isDirty(), sv = view(S.active);
     let h = '<div class="p-tbrow">';
     if (v === "B") {
-      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button data-open="splitm" title="${sv ? esc(sv.name) : "Saved Views"}"><span class="p-tile">${I("layers")}</span><span class="tb-label">${sv ? esc(sv.name) : "Saved Views"}</span>${sv && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv), "right wide")}</div>`;
+      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button data-act="quick-save" title="${!sv ? "Save the current filters as a view" : dirty ? `Save changes to ${esc(sv.name)}` : esc(sv.name)}"><span class="p-tile">${I("layers")}</span><span class="tb-label">${sv ? esc(sv.name) : "Saved Views"}</span>${sv && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv), "right wide")}</div>`;
     }
     h += `<div class="rel tb">${tbButton("status", "tb-status.svg", "Status", S.q.status.length)}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
     const inView = v === "A" && sv;
@@ -482,6 +482,25 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         else if (d.k === "sort") { q.sort = BLANK.sort; S.modal.noSort = true; }
         else delete q.f[d.k!];
         S.modal.focused = true;
+        break;
+      }
+      /* One click on the split button's left side saves the current filters: a new view when none is
+         open, the open view's changes when it has any; otherwise it just opens the menu. */
+      case "quick-save": {
+        const sv = view(S.active);
+        if (!sv) {
+          const snap = snapshot(), id = "v" + Date.now(), name = suggest();
+          S.views.push({ id, name, vis: "me", q: clone(S.q) });
+          S.active = id;
+          S.newId = id;
+          S.open = null;
+          toast(`Saved “${name}”`, snap);
+        } else if (isDirty()) {
+          const snap = snapshot();
+          sv.q = clone(S.q);
+          S.open = null;
+          toast(`Updated “${sv.name}”`, snap);
+        } else S.open = S.open === "splitm" ? null : "splitm";
         break;
       }
       case "rmvf": {
