@@ -245,7 +245,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       h += `<div class="vlist" role="listbox" aria-label="Saved views">`;
       S.views.forEach((x) => {
         const on = S.active === x.id;
-        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pl"><span>${esc(x.name)}</span></span>${on && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
+        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pl"><span>${esc(x.name)}</span></span></button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
       });
       if (!S.views.length) h += `<div class="fh-hint">No saved views yet. Set filters below, then save.</div>`;
       h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
@@ -276,8 +276,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   }
 
   function splitMenu(sv: SavedView | undefined) {
-    const dirty = isDirty();
-    const list = `<div class="pg">${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" aria-current="${S.active === v.id}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pl"><span>${esc(v.name)}</span></span>${S.active === v.id && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
+    const list = `<div class="pg">${S.views.map((v) => `<div class="vline" data-vid="${v.id}"><button class="vrow ${S.active === v.id ? "on" : ""}" aria-current="${S.active === v.id}" data-act="go" data-id="${v.id}" data-keep="1"><span class="pl"><span>${esc(v.name)}</span></span></button><button class="vmore ${S.sub === v.id ? "on" : ""}" aria-label="Options for ${esc(v.name)}" aria-expanded="${S.sub === v.id}" title="Rename, share or delete" data-act="sub" data-id="${v.id}" data-keep="1">${I("chevr")}</button></div>`).join("") || '<div class="fempty">No saved views yet</div>'}</div>`;
     // Actions sit below a divider at the bottom, like "New label" in the Labels menu; reads "Save current view".
     const foot = `<div class="pg pfoot"><button class="pr" data-act="save-new">${I("plus")}<span class="pl"><span>Save current view</span></span></button>${sv ? `<button class="pr" data-act="go" data-id="all">${I("close")}<span class="pl"><span>Exit view</span></span></button>` : ""}</div>`;
     return list + foot;
