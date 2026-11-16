@@ -560,3 +560,26 @@
 /* Flyout summary rows without icons; labels start at the menu's left edge */
 .sv .pop.sub.sub .slist{grid-template-columns:max-content minmax(0,1fr) 28px}
 .sv .pop.sub.sub .sx{grid-column:3}
+
+/* ---------- Save view dialog: progressive filter controls ---------- */
+.sv .dlg .sv-edit{justify-self:start;text-align:left;padding:2px 6px;margin:-2px -6px;border-radius:6px;font:inherit;font-weight:500;color:var(--m-ink);letter-spacing:.12px}
+.sv .dlg .sv-edit:hover,.sv .dlg .srow.is-edit .sv-edit{background:var(--m-hover)}
+.sv .dlg .dadd{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 0;font-size:14px;font-weight:500;color:var(--m-ink);letter-spacing:.12px}
+.sv .dlg .dadd svg{width:16px;height:16px}
+.sv .dlg .dadd:hover{text-decoration:underline;text-underline-offset:3px}
+.sv .dlg .dpanel{border-radius:12px;background:rgba(0,0,0,.025);box-shadow:inset 0 0 0 1px #f1f1f1;padding:6px;animation:sv-popin .16s var(--spring)}
+.sv .dlg .dp-h{display:flex;align-items:center;justify-content:space-between;padding:4px 8px 6px;font-size:12.5px;font-weight:500;color:var(--m-text2)}
+.sv .dlg .dp-done{font-size:13px;font-weight:600;color:var(--m-ink);padding:2px 6px;border-radius:6px}
+.sv .dlg .dp-done:hover{background:var(--m-hover)}
+.sv .dlg .dp-cats{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px 4px}
+.sv .dlg .dcat{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px #ececec;font-size:13.5px;font-weight:500;color:var(--m-ink)}
+.sv .dlg .dcat svg{width:14px;height:14px;color:var(--m-text2)}
+.sv .dlg .dcat:hover{background:var(--m-hover)}
+.sv .dlg .dp-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px}
+.sv .dlg .dopt{display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 8px;border-radius:8px;text-align:left;font-size:14px;font-weight:500;color:var(--m-ink);letter-spacing:.12px}
+.sv .dlg .dopt:hover{background:var(--m-hover)}
+.sv .dlg .dopt .pcb{width:18px;height:18px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--gray-500);display:grid;place-items:center;color:#fff;flex:none}
+.sv .dlg .dopt .pcb svg{width:12px;height:12px}
+.sv .dlg .dopt.on .pcb{background:var(--ink);box-shadow:none}
+.sv .dlg .drad{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--gray-500);flex:none}
+.sv .dlg .dopt.on .drad{box-shadow:inset 0 0 0 5px var(--ink)}

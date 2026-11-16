@@ -22,7 +22,7 @@ type VariantId = "A" | "B";
 type Snapshot = { views: SavedView[]; active: string; q: Query };
 type Modal =
   | { type: "rename"; id: string; focused?: boolean; err?: boolean }
-  | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean; noSort?: boolean };
+  | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean; noSort?: boolean; adding?: boolean; edit?: string | null };
 type State = {
   variant: VariantId;
   views: SavedView[];
@@ -363,6 +363,34 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     <div class="inp ${err ? "err" : ""}"><input id="vname" maxlength="48" value="${esc(value)}" placeholder="Add a name" autocomplete="off" aria-invalid="${!!err}" ${err ? 'aria-describedby="vname-err"' : ""}><button type="button" class="clr" aria-label="Clear name" data-act="clr-name" ${value ? "" : "hidden"}>${I("close")}</button></div>
     ${err ? `<span class="inl st-danger" id="vname-err">${I("alert")}Add a name for this view.</span>` : ""}</div>`;
 
+  /* Progressive filter controls inside the Save view dialog: an "Add filter" link reveals the categories
+     not in the view yet; picking one (or clicking a row's value) shows its options inline. */
+  const editable = (k: string) => k === "status" || k === "sort" || CATS.some((c) => c.k === k);
+  function filterPanel(m: Extract<Modal, { type: "save" }>) {
+    const q = m.q;
+    if (m.edit) {
+      const k = m.edit, cat = CATS.find((c) => c.k === k);
+      const label = k === "status" ? "Status" : k === "sort" ? "Sort" : cat!.label;
+      const opts = k === "sort"
+        ? SORTS.map((x) => `<button type="button" class="dopt ${q.sort === x ? "on" : ""}" role="radio" aria-checked="${q.sort === x}" data-act="dp-sort" data-v="${x}"><span class="drad"></span>${x}</button>`)
+        : (k === "status" ? STATUSES : cat!.values).map((x) => {
+            const on = k === "status" ? q.status.includes(x) : (q.f[k] || []).includes(x);
+            return `<button type="button" class="dopt ${on ? "on" : ""}" role="checkbox" aria-checked="${on}" data-act="dp-tog" data-k="${k}" data-v="${esc(x)}"><span class="pcb">${I("check")}</span>${esc(x)}</button>`;
+          });
+      return `<div class="dpanel"><div class="dp-h"><span>${label}</span><button type="button" class="dp-done" data-act="dp-done">Done</button></div><div class="dp-opts">${opts.join("")}</div></div>`;
+    }
+    if (m.adding) {
+      const avail: [string, string, string][] = [];
+      if (!q.status.length) avail.push(["status", "Status", "status"]);
+      if (!q.brand) avail.push(["brand", "Brand mentions only", "store"]);
+      CATS.forEach((c) => { if (!q.f[c.k]?.length) avail.push([c.k, c.label, c.icon]); });
+      if (!q.date) avail.push(["date", "Date", "calendar"]);
+      if (m.noSort) avail.push(["sort", "Sort", "sort"]);
+      return `<div class="dpanel"><div class="dp-h"><span>Add a filter</span><button type="button" class="dp-done" data-act="dp-close">Cancel</button></div><div class="dp-cats">${avail.map(([k, l, ic]) => `<button type="button" class="dcat" data-act="dp-pick" data-k="${k}">${I(ic)}${l}</button>`).join("")}</div></div>`;
+    }
+    return `<button type="button" class="dadd" data-act="dp-add">${I("plus")}Add filter</button>`;
+  }
+
   function modal() {
     const m = S.modal;
     if (!m) return "";
@@ -373,7 +401,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
     // What gets saved, stacked as plain rows in Small body. Hovering a row shows × to leave that filter out of the view.
     const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) =>
-      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}" title="Remove from this view">${I("trash")}</button>` : ""}</li>`;
+      `<li class="srow ${key && m.edit === key ? "is-edit" : ""}">${I(ic)}<span class="sk">${k}</span>${key && editable(key) ? `<button type="button" class="sv-v sv-edit" data-act="dp-edit" data-k="${key}" title="Change ${esc(k)}">${esc(v)}</button>` : `<span class="sv-v">${esc(v)}</span>`}${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}" title="Remove from this view">${I("trash")}</button>` : ""}</li>`;
     const items = [chipFor("spark", "Topic", "Airbnb’s Brand Mention")];
     if (q.search.trim()) items.push(chipFor("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
     if (q.status.length) items.push(chipFor("status", "Status", q.status.join(", "), "status"));
@@ -387,6 +415,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
     <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     <ul class="slist" aria-label="Saved with this view">${items.join("")}</ul>
+    ${filterPanel(m)}
     ${nameField(m.name, m.err)}
     <div class="fld"><span class="flabel" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>
     <span class="help">${m.vis === "me" ? "Only you will see this view." : "Everyone with access to this brand sees it."}</span></div>
@@ -519,6 +548,29 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         if (wasClean) S.q = clone(x.q); // keep the open view in sync when it had no unsaved changes
         const label = d.k === "date" ? "Date" : d.k === "brand" ? "Brand mentions" : d.k === "search" ? "Search" : d.k === "status" ? "Status" : d.k === "sort" ? "Sort" : CATS.find((c) => c.k === d.k)?.label;
         toast(`Removed ${label} from “${x.name}”`, snap);
+        break;
+      }
+      case "dp-add": case "dp-close": case "dp-done": case "dp-edit": case "dp-pick": case "dp-tog": case "dp-sort": {
+        if (S.modal?.type !== "save") break;
+        const m = S.modal, q = m.q, n = $<HTMLInputElement>("#vname")?.value;
+        if (n != null) m.name = n;
+        m.focused = true;
+        if (a === "dp-add") m.adding = true;
+        else if (a === "dp-close") m.adding = false;
+        else if (a === "dp-done") { m.edit = null; m.adding = false; }
+        else if (a === "dp-edit") { m.edit = m.edit === d.k ? null : d.k!; m.adding = false; }
+        else if (a === "dp-pick") {
+          m.adding = false;
+          if (d.k === "brand") q.brand = true;
+          else if (d.k === "date") q.date = true;
+          else { if (d.k === "sort") m.noSort = false; m.edit = d.k!; }
+        } else if (a === "dp-sort") { q.sort = d.v!; m.noSort = false; }
+        else if (a === "dp-tog") {
+          const arr = d.k === "status" ? q.status : (q.f[d.k!] = q.f[d.k!] || []);
+          const i = arr.indexOf(d.v!);
+          if (i < 0) arr.push(d.v!); else arr.splice(i, 1);
+          if (d.k !== "status" && !arr.length) delete q.f[d.k!];
+        }
         break;
       }
       case "clr-name": {
