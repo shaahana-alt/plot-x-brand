@@ -265,12 +265,12 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     const v = S.variant, dirty = isDirty(), sv = view(S.active);
     let h = '<div class="p-tbrow">';
     if (v === "B") {
-      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button data-act="quick-save" title="${!sv ? "Save the current filters as a view" : dirty ? `Save changes to ${esc(sv.name)}` : esc(sv.name)}"><span class="p-tile">${I("layers")}</span><span class="tb-label">${sv ? esc(sv.name) : "Saved Views"}</span>${sv && dirty ? '<span class="edited">Not saved</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv), "right wide")}</div>`;
+      h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button data-act="quick-save" title="${!sv ? "Save the current filters as a view" : dirty ? `Save changes to ${esc(sv.name)}` : esc(sv.name)}"><span class="p-tile">${I("layers")}</span><span class="tb-label">${sv ? esc(sv.name) : "Saved Views"}</span>${sv && dirty ? '<span class="p-upd" role="button" tabindex="0" data-act="update" title="Save the changes to this view">Update view</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv), "right wide")}</div>`;
     }
     h += `<div class="rel tb">${tbButton("status", "tb-status.svg", "Status", S.q.status.length)}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
     const inView = v === "A" && sv;
     const flabel = inView ? esc(sv.name) : "Filter";
-    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="edited">Not saved</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
+    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="p-upd" role="button" tabindex="0" data-act="update" title="Save the changes to this view">Update view</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
     h += `<div class="rel tb">${tbButton("sort", "tb-sort.svg", "Sort by", 0)}${menu("sort", `<div class="pg"><div class="ph">Sort by</div>${SORTS.map((x) => `<button class="pr ${S.q.sort === x ? "on" : ""}" data-act="sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${S.q.sort === x ? tick() : ""}</button>`).join("")}</div>`, "right")}</div>`;
     return h + "</div>";
   }
@@ -434,7 +434,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     tt = setTimeout(() => {
       S.toast = null;
       render();
-    }, undo ? 8000 : 4000);
+    }, undo ? 5000 : 4000);
   }
   const snapshot = (): Snapshot => clone({ views: S.views, active: S.active, q: S.q });
 
@@ -650,7 +650,14 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       render();
       return;
     }
+    // An action nested inside a toolbar button (Update view) wins over opening that button's menu.
+    const inner = inUI(target) ? target.closest<HTMLElement>("[data-act]") : null;
     const o = inUI(target) ? target.closest<HTMLElement>("[data-open]") : null;
+    if (inner && o && o.contains(inner)) {
+      e.preventDefault();
+      act(inner.dataset.act!, inner.dataset);
+      return;
+    }
     if (o) {
       e.preventDefault();
       const id = o.dataset.open!;
