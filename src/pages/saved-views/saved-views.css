@@ -519,3 +519,33 @@
 .sv .dlg .dacts .btn-dark,.sv .dlg .dacts .btn-soft{font-weight:600;font-size:14px;height:38px;padding:0 16px}
 .sv :is(.dlg,.pop.sub) .sk{color:var(--gray-600)}
 .sv :is(.dlg,.pop.sub) .srow>svg{color:var(--gray-500)}
+
+/* ---------- Menu weights and colours from Figma "SOC-8709 Saved engagement filter views" (node 15:2) ----------
+   Rows: TT Commons Medium 14/21, +0.12px tracking, ink #230603. Secondary text: rgba(0,0,0,.6).
+   Hover/selected fill rgba(0,0,0,.04); icon tiles rgba(35,6,3,.05); count badge rgba(35,6,3,.2);
+   dividers rgba(0,0,0,.12); menu surface white 90% + blur, #f1f1f1 border, radius 12. */
+.sv{--m-ink:#230603;--m-text2:rgba(0,0,0,.6);--m-strong:rgba(0,0,0,.87);--m-hover:rgba(0,0,0,.04);--m-sel:rgba(0,0,0,.06);--m-tile:rgba(35,6,3,.05);--m-count:rgba(35,6,3,.2);--m-rule:rgba(0,0,0,.12)}
+.sv .pop{background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid #f1f1f1;border-radius:12px;box-shadow:0 8px 18px -6px rgba(24,39,75,.12)}
+.sv .pop :is(.pr,.vrow,.frow,.fopt),.sv .pop .vrow .pl span{font-size:14px;font-weight:500;line-height:21px;letter-spacing:.12px;color:var(--m-ink)}
+.sv .pop :is(.pr,.vrow,.frow,.fopt){border-radius:8px}
+.sv .pop :is(button.pr,.frow,.fopt):hover,.sv .vline:hover,.sv .vline:has(.vmore.on){background:var(--m-hover)}
+.sv .vline:has(.vrow.on),.sv .vline:has(.vrow.on):hover{background:var(--m-sel)}
+.sv .pop .fopt.top{background:var(--m-hover);border-radius:12px}
+.sv .pop .fopt.top .fl1{font-weight:400;color:var(--m-strong)}
+.sv .pop .pr.danger,.sv .pop .pr.danger svg{color:#A33030}
+.sv .pop :is(.pr>svg,.pfoot .pr>svg,.vmore){color:var(--m-ink)}
+.sv .pop .ftile{width:24px;height:24px;border-radius:4px;background:var(--m-tile);color:var(--m-ink)}
+.sv .pop .ftile svg{width:16px;height:16px}
+.sv .pop .fcount{min-width:16px;height:16px;padding:0 4px;border-radius:16px;background:var(--m-count);color:var(--m-strong);font-size:11px;font-weight:600;line-height:16.5px}
+.sv .pop :is(.ph,.fh-t small,.fh-hint,.fempty){color:var(--m-text2)}
+.sv .pop .fh-t{color:var(--m-ink)}
+.sv .pop .pg+.pg,.sv .pop .pfoot,.sv .pop .ffoot{border-top-color:var(--m-rule)}
+.sv .pop :is(.fdiv){background:var(--m-rule)}
+.sv .pop .fhead{border-bottom-color:var(--m-rule)}
+/* View summary rows (flyout and Save view dialog) use the same colours */
+.sv :is(.dlg,.pop.sub) .sv-v{font-weight:500;color:var(--m-ink);letter-spacing:.12px}
+.sv :is(.dlg,.pop.sub) .sk{font-weight:400;color:var(--m-text2);letter-spacing:.12px}
+.sv :is(.dlg,.pop.sub) .srow>svg{color:var(--m-text2)}
+.sv :is(.dlg,.pop.sub) .srow{border-bottom-color:var(--m-rule)}
+.sv :is(.dlg,.pop.sub) .sx{color:var(--m-ink)}
+.sv :is(.dlg,.pop.sub) .sx:hover{background:var(--m-hover)}
