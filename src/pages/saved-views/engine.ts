@@ -286,8 +286,8 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   /* A saved view's contents, in the same rows as the Save view dialog. Hovering a row shows a delete
      button that takes that filter out of the saved view (with Undo). */
   function viewSummary(x: SavedView) {
-    const q = x.q, row = (ic: string, k: string, v: string, key?: string) =>
-      `<li class="srow">${I(ic)}<span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from ${esc(x.name)}" title="Remove from this view" data-act="rmvf" data-id="${x.id}" data-k="${key}" data-keep="1">${I("trash")}</button>` : ""}</li>`;
+    const q = x.q, row = (_ic: string, k: string, v: string, key?: string) =>
+      `<li class="srow"><span class="sk">${k}</span><span class="sv-v">${esc(v)}</span>${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from ${esc(x.name)}" title="Remove from this view" data-act="rmvf" data-id="${x.id}" data-k="${key}" data-keep="1">${I("trash")}</button>` : ""}</li>`;
     const rows: string[] = [];
     if (q.search.trim()) rows.push(row("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
     rows.push(q.status.length ? row("status", "Status", q.status.join(", "), "status") : row("status", "Status", "Any"));
