@@ -553,3 +553,7 @@
 .sv .pop.sub.sub .slist{padding:0 4px 0 10px}
 .sv .pop.sub.sub .srow{border-bottom:0;padding-left:0;padding-right:0;min-height:36px}
 .sv .pop.pop .pr.danger>svg{color:#A33030}
+/* Flyout summary rows a bit tighter */
+.sv .pop.sub.sub .srow{min-height:30px;padding-top:2px;padding-bottom:2px}
+.sv .pop.sub.sub .slist{padding-top:4px;padding-bottom:4px}
+.sv .pop.sub .sx{width:24px;height:24px}
