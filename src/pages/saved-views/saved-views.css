@@ -595,3 +595,21 @@
 .sv .dlg .dmenu .pr .tick{width:15px;height:15px;color:var(--ink);margin-left:auto}
 .sv .dlg .dadd[aria-expanded="true"]{text-decoration:none;color:var(--m-ink)}
 .sv .dlg .pop.dmenu{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* ---------- Add filter, inline (replaces the dropdown) ---------- */
+.sv .dlg .dadd-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;animation:sv-fade .15s}
+.sv .dlg .dadd-l{font-size:13.5px;font-weight:500;color:var(--m-text2);margin-right:2px}
+.sv .dlg .dcat{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:var(--p-wash);box-shadow:none;font-size:13px;font-weight:500;color:var(--m-ink);letter-spacing:.12px}
+.sv .dlg .dcat svg{width:13px;height:13px;color:var(--m-text2)}
+.sv .dlg .dcat:hover{background:#e9e9e9}
+.sv .dlg .dadd-x{font-size:13px;font-weight:500;color:var(--m-text2);padding:0 6px;height:28px}
+.sv .dlg .dadd-x:hover{color:var(--m-ink)}
+/* A row being edited: options as pills in the value column, Done in the action column */
+.sv .dlg.dlg.dlg .srow.is-edit{align-items:start;padding-top:9px;padding-bottom:9px}
+.sv .dlg .srow.is-edit>svg,.sv .dlg .srow.is-edit .sk{margin-top:4px}
+.sv .dlg .sv-pills{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.sv .dlg .opill{height:28px;padding:0 11px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px #e4e4e4;font-size:13px;font-weight:500;color:var(--m-ink);letter-spacing:.12px;white-space:nowrap;transition:background .12s,box-shadow .12s,color .12s}
+.sv .dlg .opill:hover{background:var(--m-hover)}
+.sv .dlg .opill.on{background:var(--ink);box-shadow:none;color:#fff}
+.sv .dlg .sdone{grid-column:4;justify-self:end;margin-top:4px;font-size:13px;font-weight:600;color:var(--m-ink);padding:2px 0}
+.sv .dlg .sdone:hover{text-decoration:underline;text-underline-offset:3px}

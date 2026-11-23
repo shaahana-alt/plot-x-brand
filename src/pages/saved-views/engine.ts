@@ -365,29 +365,30 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   /* Progressive filter controls inside the Save view dialog: an "Add filter" link reveals the categories
      not in the view yet; picking one (or clicking a row's value) shows its options inline. */
   const editable = (k: string) => k === "status" || k === "sort" || CATS.some((c) => c.k === k);
+  /* Options for one filter, as pill toggles placed right in its row (no dropdown) */
+  function editCell(m: Extract<Modal, { type: "save" }>, k: string) {
+    const q = m.q, cat = CATS.find((c) => c.k === k);
+    const pills = k === "sort"
+      ? SORTS.map((x) => { const on = q.sort === x && !m.noSort; return `<button type="button" class="opill ${on ? "on" : ""}" role="radio" aria-checked="${on}" data-act="dp-sort" data-v="${x}">${x}</button>`; })
+      : (k === "status" ? STATUSES : cat!.values).map((x) => {
+          const on = k === "status" ? q.status.includes(x) : (q.f[k] || []).includes(x);
+          return `<button type="button" class="opill ${on ? "on" : ""}" role="checkbox" aria-checked="${on}" data-act="dp-tog" data-k="${k}" data-v="${esc(x)}">${esc(x)}</button>`;
+        });
+    return `<span class="sv-pills">${pills.join("")}</span><button type="button" class="sdone" data-act="dp-done">Done</button>`;
+  }
+
+  /* Adding a filter stays in the dialog: "Add filter" reveals the remaining categories as small chips;
+     picking one adds its row with the options ready to pick. */
   function filterPanel(m: Extract<Modal, { type: "save" }>) {
     const q = m.q;
-    let menu = "";
-    if (m.adding) {
-      // One menu, same structure as the production Filter dropdown: categories expand in place.
-      const row = (k: string, label: string, icon: string, count: number) => {
-        const open = m.edit === k;
-        return `<button type="button" class="frow" data-act="dp-exp" data-k="${k}" aria-expanded="${open}"><span class="ftile">${I(icon)}</span><span class="fl1">${label}</span>${count ? `<span class="fcount">${count}</span>` : ""}<span class="chv">${I(open ? "chev" : "chevr")}</span></button>`;
-      };
-      const opt = (k: string, v: string, on: boolean) => `<button type="button" class="fopt ${on ? "on" : ""}" role="checkbox" aria-checked="${on}" data-act="dp-tog" data-k="${k}" data-v="${esc(v)}"><span class="pcb">${I("check")}</span><span class="fl1">${esc(v)}</span></button>`;
-      let h = `<button type="button" class="fopt top ${q.brand ? "on" : ""}" data-act="dp-brand"><span class="pcb">${I("check")}</span><span class="ftile">${I("store")}</span><span class="fl1">Only show brand mention</span></button><div class="fdiv"></div>`;
-      h += row("status", "Status", "status", q.status.length);
-      if (m.edit === "status") STATUSES.forEach((x) => (h += opt("status", x, q.status.includes(x))));
-      CATS.forEach((c) => {
-        h += row(c.k, c.label, c.icon, q.f[c.k]?.length || 0);
-        if (m.edit === c.k) c.values.forEach((x) => (h += opt(c.k, x, (q.f[c.k] || []).includes(x))));
-      });
-      h += `<button type="button" class="fopt top2 ${q.date ? "on" : ""}" data-act="dp-date"><span class="pcb">${I("check")}</span><span class="ftile">${I("calendar")}</span><span class="fl1">${DATE_RANGE}</span></button>`;
-      h += row("sort", "Sort", "sort", 0);
-      if (m.edit === "sort") SORTS.forEach((x) => (h += `<button type="button" class="pr ${q.sort === x && !m.noSort ? "on" : ""}" data-act="dp-sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${q.sort === x && !m.noSort ? tick() : ""}</button>`));
-      menu = `<div class="pop dmenu" data-dmenu><div class="fmenu-scroll">${h}</div><div class="dm-foot"><button type="button" class="btn-dark xs" data-act="dp-done">Done</button></div></div>`;
-    }
-    return `<div class="dadd-wrap"><button type="button" class="dadd" data-act="dp-add" aria-expanded="${!!m.adding}">${I("plus")}Add filter</button>${menu}</div>`;
+    if (!m.adding) return `<button type="button" class="dadd" data-act="dp-add">${I("plus")}Add filter</button>`;
+    const avail: [string, string, string][] = [];
+    if (!q.status.length && m.edit !== "status") avail.push(["status", "Status", "status"]);
+    if (!q.brand) avail.push(["brand", "Brand mentions only", "store"]);
+    CATS.forEach((c) => { if (!q.f[c.k]?.length && m.edit !== c.k) avail.push([c.k, c.label, c.icon]); });
+    if (!q.date) avail.push(["date", "Date range", "calendar"]);
+    if (m.noSort && m.edit !== "sort") avail.push(["sort", "Sort", "sort"]);
+    return `<div class="dadd-row"><span class="dadd-l">Add</span>${avail.map(([k, l, ic]) => `<button type="button" class="dcat" data-act="dp-pick" data-k="${k}">${I(ic)}${l}</button>`).join("")}<button type="button" class="dadd-x" data-act="dp-close">Cancel</button></div>`;
   }
 
   function modal() {
@@ -399,18 +400,19 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     ${nameField(m.err ? "" : view(m.id)!.name, m.err)}
     <div class="dacts"><button type="button" class="btn-soft" data-act="close-modal">Cancel</button><button class="btn-dark" id="vsave">Save</button></div></form></div>`;
     // What gets saved, stacked as plain rows in Small body. Hovering a row shows × to leave that filter out of the view.
-    const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) =>
-      `<li class="srow ${key && m.edit === key ? "is-edit" : ""}">${I(ic)}<span class="sk">${k}</span>${key && editable(key) ? `<button type="button" class="sv-v sv-edit" data-act="dp-edit" data-k="${key}" title="Change ${esc(k)}">${esc(v)}</button>` : `<span class="sv-v">${esc(v)}</span>`}${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}" title="Remove from this view">${I("trash")}</button>` : ""}</li>`;
+    const q = m.q, chipFor = (ic: string, k: string, v: string, key?: string) => key && m.edit === key
+      ? `<li class="srow is-edit">${I(ic)}<span class="sk">${k}</span>${editCell(m, key)}</li>`
+      : `<li class="srow">${I(ic)}<span class="sk">${k}</span>${key && editable(key) ? `<button type="button" class="sv-v sv-edit" data-act="dp-edit" data-k="${key}" title="Change ${esc(k)}">${esc(v)}</button>` : `<span class="sv-v">${esc(v)}</span>`}${key ? `<button type="button" class="sx" aria-label="Remove ${esc(k)} from this view" data-act="rmsum" data-k="${key}" title="Remove from this view">${I("trash")}</button>` : ""}</li>`;
     const items = [chipFor("spark", "Topic", "Airbnb’s Brand Mention")];
     if (q.search.trim()) items.push(chipFor("search", "Search", `“${q.search.trim()}”${q.mode === "smart" ? " · Smart" : ""}`, "search"));
-    if (q.status.length) items.push(chipFor("status", "Status", q.status.join(", "), "status"));
+    if (q.status.length || m.edit === "status") items.push(chipFor("status", "Status", q.status.join(", "), "status"));
     if (q.brand) items.push(chipFor("store", "Only", "brand mentions", "brand"));
     CATS.forEach((c) => {
-      if (q.f[c.k]?.length) items.push(chipFor(c.icon, c.label, q.f[c.k].join(", "), c.k));
+      if (q.f[c.k]?.length || m.edit === c.k) items.push(chipFor(c.icon, c.label, (q.f[c.k] || []).join(", "), c.k));
     });
     if (q.date) items.push(chipFor("calendar", "Date", DATE_RANGE, "date"));
     // Removing Sort leaves it out of the view, which then opens in the default order (Newest).
-    if (!m.noSort) items.push(chipFor("sort", "Sort", q.sort, "sort"));
+    if (!m.noSort || m.edit === "sort") items.push(chipFor("sort", "Sort", q.sort, "sort"));
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
     <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     <ul class="slist" aria-label="Saved with this view">${items.join("")}</ul>
@@ -549,18 +551,21 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
         toast(`Removed ${label} from “${x.name}”`, snap);
         break;
       }
-      case "dp-add": case "dp-done": case "dp-edit": case "dp-exp": case "dp-tog": case "dp-sort": case "dp-brand": case "dp-date": {
+      case "dp-add": case "dp-close": case "dp-done": case "dp-edit": case "dp-pick": case "dp-tog": case "dp-sort": {
         if (S.modal?.type !== "save") break;
         const m = S.modal, q = m.q, n = $<HTMLInputElement>("#vname")?.value;
         if (n != null) m.name = n;
         m.focused = true;
-        if (a === "dp-add") { m.adding = !m.adding; if (!m.adding) m.edit = null; }
-        else if (a === "dp-done") { m.adding = false; m.edit = null; }
-        else if (a === "dp-edit") { m.adding = true; m.edit = d.k!; }
-        else if (a === "dp-exp") m.edit = m.edit === d.k ? null : d.k!;
-        else if (a === "dp-brand") q.brand = !q.brand;
-        else if (a === "dp-date") q.date = !q.date;
-        else if (a === "dp-sort") { q.sort = d.v!; m.noSort = false; }
+        if (a === "dp-add") { m.adding = true; m.edit = null; }
+        else if (a === "dp-close") m.adding = false;
+        else if (a === "dp-done") m.edit = null;
+        else if (a === "dp-edit") { m.edit = d.k!; m.adding = false; }
+        else if (a === "dp-pick") {
+          m.adding = false;
+          if (d.k === "brand") q.brand = true;
+          else if (d.k === "date") q.date = true;
+          else m.edit = d.k!;
+        } else if (a === "dp-sort") { q.sort = d.v!; m.noSort = false; }
         else if (a === "dp-tog") {
           const arr = d.k === "status" ? q.status : (q.f[d.k!] = q.f[d.k!] || []);
           const i = arr.indexOf(d.v!);
@@ -713,14 +718,6 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       S.sub = null;
       render();
       return;
-    }
-    if (S.modal?.type === "save" && S.modal.adding && !target.closest("[data-dmenu],[data-act^='dp-']")) {
-      S.modal.adding = false;
-      S.modal.edit = null;
-      const n = $<HTMLInputElement>("#vname")?.value;
-      if (n != null) S.modal.name = n;
-      S.modal.focused = true;
-      render();
     }
     const t = inUI(target) ? target.closest<HTMLElement>("[data-act]") : null;
     if (t) {
