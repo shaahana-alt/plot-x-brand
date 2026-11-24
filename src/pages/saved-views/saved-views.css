@@ -613,3 +613,6 @@
 .sv .dlg .opill.on{background:var(--ink);box-shadow:none;color:#fff}
 .sv .dlg .sdone{grid-column:4;justify-self:end;margin-top:4px;font-size:13px;font-weight:600;color:var(--m-ink);padding:2px 0}
 .sv .dlg .sdone:hover{text-decoration:underline;text-underline-offset:3px}
+/* "Only show brand mention" is not highlighted at rest; it gets the normal hover fill only */
+.sv .pop.pop .fopt.top{background:none;border-radius:8px}
+.sv .pop.pop .fopt.top:hover{background:var(--m-hover)}
