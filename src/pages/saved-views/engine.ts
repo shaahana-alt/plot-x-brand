@@ -4,7 +4,7 @@ import { asset } from "../../asset";
  * Saved views prototype — behaviour ported 1:1 from the published "Saved View Prototypes" artifact.
  * It is a small string-template renderer (as in the original) mounted into a React-owned element,
  * so interactions, copy and timing match the reviewed prototype exactly.
- * Only the unreachable variant C/D code paths were left out.
+ * Variant A (saved views inside the Filter menu) was removed; the Saved Views split button is the only entry point.
  */
 
 type Query = {
@@ -18,13 +18,11 @@ type Query = {
 };
 type Vis = "me" | "team";
 type SavedView = { id: string; name: string; vis: Vis; q: Query };
-type VariantId = "A" | "B";
 type Snapshot = { views: SavedView[]; active: string; q: Query };
 type Modal =
   | { type: "rename"; id: string; focused?: boolean; err?: boolean }
   | { type: "save"; name: string; vis: Vis; q: Query; focused?: boolean; err?: boolean; noSort?: boolean; adding?: boolean; edit?: string | null };
 type State = {
-  variant: VariantId;
   views: SavedView[];
   active: string;
   q: Query;
@@ -97,30 +95,6 @@ const PRESETS = [
 ];
 const BLANK: Query = { brand: false, status: [], f: {}, sort: "Newest", search: "", mode: "regular" };
 
-export const VARIANTS: Record<VariantId, { name: string; save: string; views: string; edit: string; refs: [string, string][]; tradeoff: string }> = {
-  A: {
-    name: "Filter menu",
-    save: "Open <b>Filter</b>: <b>Save view</b> is pinned at the top of the menu, next to your saved views, so it never scrolls away. It appears as soon as a filter changes.",
-    views: "Pick a view from the pinned list to apply it. The selected view’s checkbox is ticked, and the Filter button takes its name. Click the selected view again to exit it.",
-    edit: "Changing a selected view marks it <b>Not saved</b> (in the list and on the Filter button) and swaps the button for <b>Save as new · Update</b>.",
-    refs: [
-      ["Air", "https://mobbin.com/screens/720054e9-1814-4363-b820-b227d54fbadf"],
-      ["Salesforce", "https://mobbin.com/screens/3d37072e-5be2-4373-9714-d51733fc3296"],
-    ],
-    tradeoff: "No new chrome on the page. Views are only visible once someone opens the menu.",
-  },
-  B: {
-    name: "Toolbar split button",
-    save: "A permanent <b>Save view</b> split button sits beside Status, Filter and Sort. When a view is open, the button shows that view’s name and opens its options.",
-    views: "Everything lives in this one button’s menu: picking a view, saving, and renaming, sharing or deleting the open view. The tab row stays fixed.",
-    edit: "The chevron offers <b>Update view</b>, <b>Save as new</b> or <b>Discard changes</b>.",
-    refs: [
-      ["QuickBooks", "https://mobbin.com/screens/667f2fe5-3ed6-4449-8967-322b434da111"],
-      ["Attio", "https://mobbin.com/screens/a1cca18c-6359-46c4-a986-a46332943a05"],
-    ],
-    tradeoff: "Clear that the whole page setup is saved. Adds a permanent control to a crowded toolbar.",
-  },
-};
 
 const seedViews = (): SavedView[] => [
   { id: "v1", name: "Negative on TikTok", vis: "team", q: { brand: false, status: [], f: { platform: ["TikTok"], sentiment: ["Negative"] }, sort: "Most engagement", search: "", mode: "regular" } },
@@ -129,9 +103,8 @@ const seedViews = (): SavedView[] => [
 ];
 const START = (): Query => ({ brand: false, status: ["Not started"], f: { platform: ["TikTok", "Instagram"] }, sort: "Newest", search: "", mode: "regular", date: true });
 const DATE_RANGE = "11 Nov 2026 - 12 Nov 2026";
-const fresh = (v?: VariantId): State => ({ variant: v || "A", views: seedViews(), active: "all", q: START(), open: null, exp: "platform", modal: null, toast: null, newId: null, sub: null });
+const fresh = (): State => ({ views: seedViews(), active: "all", q: START(), open: null, exp: "platform", modal: null, toast: null, newId: null, sub: null });
 
-const VARIANT_KEY = "sv-variant2";
 
 type Avatar = string | [letter: string, color: string];
 type Card = {
@@ -160,12 +133,6 @@ const img = (n: string, w: number, h = w, cls = "p-ic") => `<img class="${cls}" 
 /** Mounts the prototype into `root` (page) and `layer` (overlays on <body>). Returns a cleanup function. */
 export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => void {
   let S = fresh();
-  try {
-    const v = localStorage.getItem(VARIANT_KEY);
-    if (v === "A" || v === "B") S.variant = v;
-  } catch {
-    // storage unavailable; keep default variant
-  }
 
   const $ = <T extends HTMLElement = HTMLElement>(s: string) => (root.querySelector<T>(s) ?? layer.querySelector<T>(s));
   const inUI = (t: EventTarget | null) => t instanceof Element && (root.contains(t) || layer.contains(t));
@@ -235,21 +202,7 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
 
   /* Filter dropdown, matching production: brand toggle, then accordion categories with count + nested checkboxes */
   function filterMenu() {
-    const v = S.variant, sv = view(S.active), dirty = isDirty();
     let h = "";
-    if (v === "A") {
-      const act = sv && dirty
-        ? `<button class="btn-soft xs" data-act="save-new">Save as new</button><button class="btn-dark xs" data-act="update">${I("refresh")}Update</button>`
-        : dirty ? `<button class="btn-dark xs" data-act="save-new">${I("bookmark")}Save view</button>` : "";
-      h += `<div class="fhead"><div class="fh-row"><span class="fh-t">Saved views <small>${S.views.length}</small></span>${act}</div>`;
-      h += `<div class="vlist" role="listbox" aria-label="Saved views">`;
-      S.views.forEach((x) => {
-        const on = S.active === x.id;
-        h += `<div class="vline" data-vid="${x.id}"><button class="vrow ${on ? "on" : ""}" role="option" aria-selected="${on}" data-act="go" data-id="${on ? "all" : x.id}" data-keep="1" title="${on ? "Click again to exit this view" : "Apply this view"}"><span class="pl"><span>${esc(x.name)}</span></span></button><button class="vmore ${S.sub === x.id ? "on" : ""}" aria-label="Options for ${esc(x.name)}" aria-expanded="${S.sub === x.id}" title="Rename, share or delete" data-act="sub" data-id="${x.id}" data-keep="1">${I("chevr")}</button></div>`;
-      });
-      if (!S.views.length) h += `<div class="fh-hint">No saved views yet. Set filters below, then save.</div>`;
-      h += `</div>${sv && dirty ? `<div class="fh-hint">You’ve changed this view. <button class="lnk" data-act="reset" data-keep="1">Reset</button></div>` : !sv && dirty ? `<div class="fh-hint">These filters aren’t saved yet.</div>` : ""}</div>`;
-    }
     h += `<div class="fmenu-scroll">`;
     h += `<button class="fopt top ${S.q.brand ? "on" : ""}" data-act="brand" data-keep="1"><span class="pcb">${I("check")}</span><span class="ftile">${I("store")}</span><span class="fl1">Only show brand mention</span></button><div class="fdiv"></div>`;
     CATS.forEach((c) => {
@@ -262,15 +215,13 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   }
 
   function toolbar() {
-    const v = S.variant, dirty = isDirty(), sv = view(S.active);
+    const dirty = isDirty(), sv = view(S.active);
     let h = '<div class="p-tbrow">';
-    if (v === "B") {
+    {
       h += `<div class="rel"><div class="p-split ${S.open === "splitm" ? "is-on" : ""}"><button data-act="quick-save" title="${!sv ? "Save the current filters as a view" : dirty ? `Save changes to ${esc(sv.name)}` : esc(sv.name)}"><span class="p-tile">${I("layers")}</span><span class="tb-label">${sv ? esc(sv.name) : "Saved Views"}</span>${sv && dirty ? '<span class="p-upd" role="button" tabindex="0" data-act="update" title="Save the changes to this view">Update view</span>' : ""}</button><button aria-label="More save options" data-open="splitm">${img("tb-chev.svg", 16)}</button></div>${menu("splitm", splitMenu(sv), "right wide")}</div>`;
     }
     h += `<div class="rel tb">${tbButton("status", "tb-status.svg", "Status", S.q.status.length)}${menu("status", `<div class="pg"><div class="ph">Status</div>${STATUSES.map((x) => `<button class="fopt ${S.q.status.includes(x) ? "on" : ""}" data-act="togs" data-v="${x}" data-keep="1"><span class="pcb">${I("check")}</span><span class="fl1">${x}</span></button>`).join("")}</div>`, "right")}</div>`;
-    const inView = v === "A" && sv;
-    const flabel = inView ? esc(sv.name) : "Filter";
-    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", flabel, fCount(), inView && dirty ? '<span class="p-upd" role="button" tabindex="0" data-act="update" title="Save the changes to this view">Update view</span>' : "")}${menu("filter", filterMenu(), "right fmenu")}</div>`;
+    h += `<div class="rel tb">${tbButton("filter", "tb-filter.svg", "Filter", fCount())}${menu("filter", filterMenu(), "right fmenu")}</div>`;
     h += `<div class="rel tb">${tbButton("sort", "tb-sort.svg", "Sort by", 0)}${menu("sort", `<div class="pg"><div class="ph">Sort by</div>${SORTS.map((x) => `<button class="pr ${S.q.sort === x ? "on" : ""}" data-act="sort" data-v="${x}"><span class="pl"><span>${x}</span></span>${S.q.sort === x ? tick() : ""}</button>`).join("")}</div>`, "right")}</div>`;
     return h + "</div>";
   }
@@ -377,20 +328,6 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     return `<span class="sv-pills">${pills.join("")}</span><button type="button" class="sdone" data-act="dp-done">Done</button>`;
   }
 
-  /* Adding a filter stays in the dialog: "Add filter" reveals the remaining categories as small chips;
-     picking one adds its row with the options ready to pick. */
-  function filterPanel(m: Extract<Modal, { type: "save" }>) {
-    const q = m.q;
-    if (!m.adding) return `<button type="button" class="dadd" data-act="dp-add">${I("plus")}Add filter</button>`;
-    const avail: [string, string, string][] = [];
-    if (!q.status.length && m.edit !== "status") avail.push(["status", "Status", "status"]);
-    if (!q.brand) avail.push(["brand", "Brand mentions only", "store"]);
-    CATS.forEach((c) => { if (!q.f[c.k]?.length && m.edit !== c.k) avail.push([c.k, c.label, c.icon]); });
-    if (!q.date) avail.push(["date", "Date range", "calendar"]);
-    if (m.noSort && m.edit !== "sort") avail.push(["sort", "Sort", "sort"]);
-    return `<div class="dadd-row"><span class="dadd-l">Add</span>${avail.map(([k, l, ic]) => `<button type="button" class="dcat" data-act="dp-pick" data-k="${k}">${I(ic)}${l}</button>`).join("")}<button type="button" class="dadd-x" data-act="dp-close">Cancel</button></div>`;
-  }
-
   function modal() {
     const m = S.modal;
     if (!m) return "";
@@ -416,7 +353,6 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
     return `<div class="scrim" data-act="close-modal-bg"><form class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgT" data-form="save" novalidate>
     <div class="hd"><h2 id="dlgT">Save view</h2><button type="button" class="icon-btn" aria-label="Close" data-act="close-modal">${I("close")}</button></div>
     <ul class="slist" aria-label="Saved with this view">${items.join("")}</ul>
-    ${filterPanel(m)}
     ${nameField(m.name, m.err)}
     <div class="fld"><span class="flabel" id="visL">Who can see it</span><div class="seg sm" role="radiogroup" aria-labelledby="visL"><button type="button" role="radio" aria-checked="${m.vis === "me"}" class="${m.vis === "me" ? "on" : ""}" data-act="vis-pick" data-v="me">${I("lock")}Only me</button><button type="button" role="radio" aria-checked="${m.vis === "team"}" class="${m.vis === "team" ? "on" : ""}" data-act="vis-pick" data-v="team">${I("users")}Everyone at Airbnb</button></div>
     <span class="help">${m.vis === "me" ? "Only you will see this view." : "Everyone with access to this brand sees it."}</span></div>
@@ -424,14 +360,9 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   }
 
   function render() {
-    const v = S.variant;
     const sc = $(".fmenu-scroll")?.scrollTop;
     // overlays sit outside the stage, so mirror the dock's font choice onto them
     layer.style.fontFamily = getComputedStyle(root).fontFamily;
-    root.querySelectorAll<HTMLButtonElement>(".vseg button").forEach((b) => {
-      b.classList.toggle("on", b.dataset.v === v);
-      b.setAttribute("aria-pressed", String(b.dataset.v === v));
-    });
     $(".pbody")!.innerHTML = `
     <div class="p-row">${tabs()}${toolbar()}</div>
     <div class="p-topic"><button class="p-topic-t">Airbnb's Brand Mention${img("topic-chev.svg", 24)}</button><div class="p-topic-m"><span class="p-beta">Beta</span><span class="p-smart">${img("topic-smart.svg", 18)}Smart assignment <small>Off</small></span></div></div>
@@ -700,19 +631,8 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
   const onClick = (e: MouseEvent) => {
     const target = e.target as Element;
     if (!(target instanceof Element)) return;
-    const vb = inUI(target) ? target.closest<HTMLButtonElement>(".vseg button") : null;
-    if (vb) {
-      S = fresh(vb.dataset.v as VariantId);
-      try {
-        localStorage.setItem(VARIANT_KEY, vb.dataset.v!);
-      } catch {
-        // storage unavailable
-      }
-      render();
-      return;
-    }
     if (inUI(target) && target.closest(".rv-reset")) {
-      S = fresh(S.variant);
+      S = fresh();
       render();
       return;
     }

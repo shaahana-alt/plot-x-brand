@@ -147,7 +147,7 @@ function TopBar() {
   );
 }
 
-/** Saved views on the production Engagement page: variant A (Filter menu) and variant B (Toolbar split button). */
+/** Saved views on the production Engagement page, through the Saved Views split button in the toolbar. */
 export function SavedViews() {
   const rootRef = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -185,14 +185,6 @@ export function SavedViews() {
         </div>
         <div className="p-proto" role="group" aria-label="Prototype controls">
           <span>Prototype</span>
-          <div className="vseg">
-            <button type="button" data-v="A">
-              <b>A</b>Filter menu
-            </button>
-            <button type="button" data-v="B">
-              <b>B</b>Toolbar
-            </button>
-          </div>
           <button type="button" className="rv-reset">
             Reset
           </button>
