@@ -616,3 +616,5 @@
 /* "Only show brand mention" is not highlighted at rest; it gets the normal hover fill only */
 .sv .pop.pop .fopt.top{background:none;border-radius:8px}
 .sv .pop.pop .fopt.top:hover{background:var(--m-hover)}
+/* New pieces inside the open dialog fade in gently */
+.sv .dlg .srow.is-edit,.sv .dlg .dadd-row{animation:sv-fade .18s ease-out}

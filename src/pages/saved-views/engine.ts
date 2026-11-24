@@ -440,7 +440,20 @@ export function mountSavedViews(root: HTMLElement, layer: HTMLElement): () => vo
       <div class="p-search-r"><div class="p-mode"><button class="${S.q.mode === "regular" ? "on" : ""}" data-act="mode" data-v="regular">Regular search</button><button class="${S.q.mode === "smart" ? "on" : ""}" data-act="mode" data-v="smart">Smart search</button></div><button class="p-btn"><span class="p-tile">${img("plus.svg", 16)}</span>Add post</button><button class="p-btn"><span class="p-tile">${img("export.svg", 16)}</span>Export</button></div></div>
     ${chips()}
     ${cards()}`;
-    layer.querySelector(".sv-modal")!.innerHTML = modal();
+    // While a dialog stays open, update it in place (no re-entry animation) and ease any height change.
+    const host = layer.querySelector<HTMLElement>(".sv-modal")!, html = modal();
+    const oldDlg = host.querySelector<HTMLElement>(".dlg");
+    if (html && oldDlg && oldDlg.dataset.form === S.modal?.type) {
+      const tpl = document.createElement("template");
+      tpl.innerHTML = html;
+      const h0 = oldDlg.offsetHeight;
+      oldDlg.innerHTML = tpl.content.querySelector(".dlg")!.innerHTML;
+      const h1 = oldDlg.offsetHeight;
+      if (h0 !== h1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        oldDlg.style.overflow = "hidden";
+        oldDlg.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 200, easing: "cubic-bezier(.2,.8,.2,1)" }).onfinish = () => (oldDlg.style.overflow = "");
+      }
+    } else host.innerHTML = html;
     layer.querySelector(".sv-toast")!.innerHTML = S.toast ? `<div class="toast" role="status">${I("check")}<span>${esc(S.toast.msg)}</span>${S.toast.undo ? '<button data-act="undo">Undo</button>' : ""}</div>` : "";
     const scroller = $(".fmenu-scroll");
     if (sc != null && scroller) scroller.scrollTop = sc;
